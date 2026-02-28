@@ -85,25 +85,6 @@ export default function App() {
         height: '62%', width: 'auto', opacity: 0.18, pointerEvents: 'none', zIndex: 0,
         filter: 'brightness(0.8) saturate(0.4) sepia(0.15)',
       }} />
-      {/* Top bar */}
-      <div className="flex items-center px-4 py-2 flex-shrink-0" style={{
-        borderBottom: '1px solid rgba(180,170,148,0.4)',
-        background: 'rgba(210,200,180,0.6)',
-        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-        position: 'relative', zIndex: 2,
-      }}>
-        <div className="font-display text-sm font-light" style={{ color: 'var(--green)' }}>
-          EcoCore
-        </div>
-        <div className="flex-1" />
-        {user?.picture && (
-          <img src={user.picture} alt="" className="w-5 h-5 rounded-full mr-2" style={{ border: '1.5px solid var(--green)', objectFit: 'cover' }} />
-        )}
-        <div className="eco-pill" style={{ background: 'rgba(46,125,62,0.08)', color: 'var(--green)', padding: '2px 8px', fontSize: 9 }}>
-          ● Online
-        </div>
-      </div>
-
       {/* Tab content */}
       <div className="flex-1 overflow-hidden">
         {renderTab()}

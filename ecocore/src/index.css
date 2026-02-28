@@ -64,19 +64,6 @@ html, body, #root {
       0 0 0 12px #3a4a3c,
       0 20px 60px rgba(0, 0, 0, 0.25);
   }
-  /* Notch */
-  .phone-shell::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 28px;
-    background: #1c2b1e;
-    border-radius: 0 0 18px 18px;
-    z-index: 100;
-  }
 }
 
 /* On actual phones, fill the viewport */
