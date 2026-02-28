@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { chartData as mockChartData, cityStats as mockCityStats, homeStats as mockHomeStats } from '../data/mock';
 
 // ─── WattTime config ───────────────────────────────────────────
-const WT_BASE = 'https://api.watttime.org';
+const WT_BASE = import.meta.env.DEV ? '/api/watttime' : 'https://api.watttime.org';
 const SIGNAL_TYPE = 'co2_moer';
 const PREVIEW_REGION = 'CAISO_NORTH';
 
 // ─── EIA config (free, no API key required – DEMO_KEY works) ──
-const EIA_BASE = 'https://api.eia.gov/v2/electricity/rto';
+const EIA_BASE = import.meta.env.DEV
+  ? '/api/eia/v2/electricity/rto'
+  : 'https://api.eia.gov/v2/electricity/rto';
 const EIA_KEY = import.meta.env.VITE_EIA_API_KEY || 'DEMO_KEY';
 
 // Map WattTime region prefixes → EIA respondent codes

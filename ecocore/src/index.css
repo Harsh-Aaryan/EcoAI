@@ -2,17 +2,17 @@
 
 /* ── Solarpunk Design Tokens ── */
 :root {
-  --bg: #f4efdf;
-  --surface: #faf8f0;
-  --border: #d6ceb4;
+  --bg: #c9c0ac;
+  --surface: rgba(205,196,178,0.65);
+  --border: rgba(160,150,130,0.5);
   --green: #2e7d3e;
   --green-soft: #6aad73;
   --sun: #c98b1a;
   --sky: #2e8b96;
   --text: #1c2b1e;
-  --muted: #7d8c72;
-  --cream: #fdfbf5;
-  --warm: #e8ddc8;
+  --muted: #6b7a60;
+  --cream: rgba(215,206,190,0.7);
+  --warm: rgba(180,170,148,0.5);
 
   --font-display: 'Fraunces', serif;
   --font-mono: 'DM Mono', monospace;
@@ -43,7 +43,7 @@ html, body, #root {
   margin: auto;
   position: relative;
   overflow: hidden;
-  background: var(--bg);
+  background: linear-gradient(175deg, #d4ccba 0%, #c9c0ac 30%, #bfb6a2 60%, #b8ad98 100%);
 }
 
 /* Centre the phone shell on larger screens */
@@ -90,7 +90,7 @@ html, body, #root {
 
 
 body {
-  background: var(--bg);
+  background: #c9c0ac;
   color: var(--text);
   font-family: var(--font-mono);
   font-size: 13px;
@@ -117,7 +117,7 @@ body {
   background:
     radial-gradient(ellipse at 20% 0%, rgba(106,173,115,0.12) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 100%, rgba(201,139,26,0.08) 0%, transparent 50%),
-    var(--bg);
+    linear-gradient(175deg, #d4ccba 0%, #c9c0ac 30%, #bfb6a2 60%, #b8ad98 100%);
 }
 
 /* ── House-bg scene ── */
@@ -152,14 +152,14 @@ body {
   border-radius: var(--radius-card);
 }
 .frost-panel-warm {
-  background: rgba(236,230,218,0.6);
+  background: rgba(205,196,178,0.55);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(255,255,255,0.3);
   border-radius: var(--radius-card);
 }
 .frost-card {
-  background: rgba(250,248,240,0.85);
+  background: rgba(210,200,180,0.75);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.3);
@@ -167,12 +167,26 @@ body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 .frost-bottom {
-  background: rgba(250,248,240,0.88);
+  background: rgba(205,196,178,0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.35);
   border-radius: 16px;
   box-shadow: 0 -4px 24px rgba(0,0,0,0.06);
+}
+
+/* Frosted eco-card variants — used when house.svg shows through */
+.frosted-page .eco-card,
+.frosted-page .eco-card-glow {
+  background: rgba(220,214,198,0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.35);
+  position: relative;
+  z-index: 1;
+}
+.frosted-page .eco-card-glow {
+  box-shadow: 0 0 16px rgba(46,125,62,0.08);
 }
 
 /* ── Grain texture ── */
@@ -284,15 +298,19 @@ body {
 
 /* ── Card ── */
 .eco-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: rgba(205,196,178,0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
   border-radius: var(--radius-card);
   padding: 12px;
   box-shadow: var(--shadow-card);
 }
 
 .eco-card-glow {
-  background: var(--surface);
+  background: rgba(205,196,178,0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(46,125,62,0.2);
   border-radius: var(--radius-card);
   padding: 12px;
@@ -341,8 +359,8 @@ body {
 
 /* ── Input ── */
 .eco-input {
-  background: var(--cream);
-  border: 1px solid var(--border);
+  background: rgba(195,186,168,0.5);
+  border: 1px solid rgba(160,150,130,0.5);
   border-radius: var(--radius-input);
   padding: 8px 12px;
   color: var(--text);
@@ -419,8 +437,8 @@ input[type="range"]::-webkit-slider-thumb {
   font-family: var(--font-mono);
   cursor: pointer;
   transition: all 200ms;
-  border: 1px solid var(--border);
-  background: var(--cream);
+  border: 1px solid rgba(160,150,130,0.5);
+  background: rgba(195,186,168,0.5);
   color: var(--text);
 }
 .eco-chip.active {
@@ -441,14 +459,17 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 10px 14px 0;
   display: flex;
   flex-direction: column;
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Leaflet overrides ── */
-.leaflet-container { background: var(--cream) !important; border-radius: var(--radius-card) !important; }
+.leaflet-container { background: #c9c0ac !important; border-radius: var(--radius-card) !important; }
 .leaflet-control-zoom { border: 1px solid var(--border) !important; border-radius: 10px !important; }
-.leaflet-control-zoom a { background: var(--surface) !important; color: var(--text) !important; border-color: var(--border) !important; }
-.leaflet-popup-content-wrapper { background: var(--surface) !important; color: var(--text) !important; border-radius: 12px !important; border: 1px solid var(--border) !important; box-shadow: var(--shadow-card) !important; }
-.leaflet-popup-tip { background: var(--surface) !important; }
+.leaflet-control-zoom a { background: rgba(205,196,178,0.85) !important; color: var(--text) !important; border-color: rgba(160,150,130,0.5) !important; }
+.leaflet-popup-content-wrapper { background: rgba(210,200,180,0.92) !important; color: var(--text) !important; border-radius: 12px !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: var(--shadow-card) !important; }
+.leaflet-popup-tip { background: rgba(210,200,180,0.92) !important; }
 
 /* ── Task done ── */
 .task-done {
@@ -459,10 +480,10 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* ── Select ── */
 select.eco-input {
-  background: var(--cream);
+  background: rgba(195,186,168,0.5);
 }
 select.eco-input option {
-  background: var(--surface);
+  background: #c9c0ac;
   color: var(--text);
 }
 

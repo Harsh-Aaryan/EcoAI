@@ -48,4 +48,20 @@ export default defineConfig({
       }
     })
   ],
+  server: {
+    proxy: {
+      '/api/watttime': {
+        target: 'https://api.watttime.org',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/watttime/, ''),
+        secure: true,
+      },
+      '/api/eia': {
+        target: 'https://api.eia.gov',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/eia/, ''),
+        secure: true,
+      },
+    },
+  },
 })

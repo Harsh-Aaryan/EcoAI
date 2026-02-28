@@ -8,6 +8,7 @@ import CityTab from './tabs/CityTab';
 import JobsTab from './tabs/JobsTab';
 import RevenueTab from './tabs/RevenueTab';
 import { HomeIcon, CityIcon, JobsIcon, RevenueIcon, SettingsIcon, CircuitLeafLogo } from './components/Icons';
+import houseSvg from './assets/house.svg';
 
 const TABS = [
   { key: 'home', label: 'Home', Icon: HomeIcon },
@@ -77,9 +78,20 @@ export default function App() {
 
   return (
     <div className="phone-shell">
-    <div className="h-full flex flex-col" style={{ background: 'var(--bg)' }}>
+    <div className="h-full flex flex-col" style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* House SVG — persistent background across all tabs */}
+      <img src={houseSvg} alt="" aria-hidden draggable={false} style={{
+        position: 'absolute', left: '50%', bottom: '3%', transform: 'translateX(-50%)',
+        height: '62%', width: 'auto', opacity: 0.18, pointerEvents: 'none', zIndex: 0,
+        filter: 'brightness(0.8) saturate(0.4) sepia(0.15)',
+      }} />
       {/* Top bar */}
-      <div className="flex items-center px-4 py-2 flex-shrink-0" style={{ borderBottom: '1px solid var(--border)' }}>
+      <div className="flex items-center px-4 py-2 flex-shrink-0" style={{
+        borderBottom: '1px solid rgba(180,170,148,0.4)',
+        background: 'rgba(210,200,180,0.6)',
+        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+        position: 'relative', zIndex: 2,
+      }}>
         <div className="font-display text-sm font-light" style={{ color: 'var(--green)' }}>
           EcoCore
         </div>
@@ -99,7 +111,13 @@ export default function App() {
 
       {/* Bottom nav — 5 tabs */}
       <div className="flex items-center justify-around flex-shrink-0 py-1.5 pb-3"
-        style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)', boxShadow: '0 -2px 12px rgba(44,80,50,0.04)' }}>
+        style={{
+          background: 'rgba(210,200,180,0.7)',
+          backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+          borderTop: '1px solid rgba(180,170,148,0.4)',
+          boxShadow: '0 -2px 12px rgba(44,80,50,0.06)',
+          position: 'relative', zIndex: 2,
+        }}>
         {TABS.map(({ key, label, Icon }) => {
           const active = activeTab === key;
           return (

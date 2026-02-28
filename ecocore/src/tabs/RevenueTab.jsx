@@ -4,10 +4,17 @@ import { revenueData, revenueChart } from '../data/mock';
 
 export default function RevenueTab() {
   return (
-    <div className="tab-page">
+    <div className="tab-page frosted-page" style={{ position: 'relative' }}>
       {/* Balance Hero — compact */}
-      <div className="eco-card-glow grain text-center mb-2 py-3 flex-shrink-0"
-        style={{ background: 'linear-gradient(135deg, rgba(46,125,62,0.06), rgba(201,139,26,0.04))' }}>
+      <div className="grain text-center mb-2 py-3 flex-shrink-0"
+        style={{
+          background: 'rgba(205,196,178,0.65)',
+          backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.3)',
+          borderRadius: 'var(--radius-card)',
+          boxShadow: 'var(--shadow-glow)',
+          position: 'relative', zIndex: 1,
+        }}>
         <div className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Total Balance</div>
         <div className="font-display text-4xl font-bold my-1" style={{ color: 'var(--green)' }}>
           ${revenueData.balance.toFixed(2)}
@@ -21,7 +28,14 @@ export default function RevenueTab() {
       </div>
 
       {/* 28-day chart */}
-      <div className="eco-card grain mb-2 flex-shrink-0">
+      <div className="grain mb-2 flex-shrink-0" style={{
+        background: 'rgba(205,196,178,0.65)',
+        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255,255,255,0.3)',
+        borderRadius: 'var(--radius-card)',
+        padding: 12, position: 'relative', zIndex: 1,
+        boxShadow: 'var(--shadow-card)',
+      }}>
         <div className="font-display text-xs mb-1">28-Day Earnings</div>
         <ResponsiveContainer width="100%" height={100}>
           <BarChart data={revenueChart} margin={{ top: 0, right: 0, left: -24, bottom: 0 }}>
@@ -37,7 +51,14 @@ export default function RevenueTab() {
       </div>
 
       {/* Revenue Breakdown */}
-      <div className="eco-card grain mb-2 flex-shrink-0">
+      <div className="grain mb-2 flex-shrink-0" style={{
+        background: 'rgba(205,196,178,0.65)',
+        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255,255,255,0.3)',
+        borderRadius: 'var(--radius-card)',
+        padding: 12, position: 'relative', zIndex: 1,
+        boxShadow: 'var(--shadow-card)',
+      }}>
         <div className="font-display text-xs mb-2">Revenue Breakdown</div>
         {revenueData.breakdown.map((row, i) => (
           <div key={i} className="mb-2 last:mb-0">
@@ -53,8 +74,15 @@ export default function RevenueTab() {
       </div>
 
       {/* Leaderboard — fills rest */}
-      <div className="eco-card grain flex-1 min-h-0 flex flex-col justify-center vine-left pl-4"
-        style={{ background: 'linear-gradient(135deg, rgba(201,139,26,0.04), transparent)' }}>
+      <div className="grain flex-1 min-h-0 flex flex-col justify-center vine-left pl-4"
+        style={{
+          background: 'rgba(205,196,178,0.6)',
+          backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255,255,255,0.3)',
+          borderRadius: 'var(--radius-card)',
+          padding: 12, position: 'relative', zIndex: 1,
+          boxShadow: 'var(--shadow-card)',
+        }}>
         <div className="font-display text-xs mb-1">Community Standing</div>
         <div className="font-mono mb-2" style={{ fontSize: 11, color: 'var(--muted)' }}>
           You're among the top {revenueData.rank}% of homes in your region this week

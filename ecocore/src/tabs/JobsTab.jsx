@@ -167,11 +167,11 @@ export default function JobsTab() {
   const [subTab, setSubTab] = useState('jobs');
 
   return (
-    <div className="tab-page">
-      <h2 className="font-display text-base font-light mb-2 flex-shrink-0">Jobs & Tasks</h2>
+    <div className="tab-page frosted-page" style={{ position: 'relative' }}>
+      <h2 className="font-display text-base font-light mb-2 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>Jobs & Tasks</h2>
 
       {/* Sub-tab switcher */}
-      <div className="flex gap-0 mb-2 p-0.5 rounded-full flex-shrink-0" style={{ background: 'var(--warm)', border: '1px solid var(--border)' }}>
+      <div className="flex gap-0 mb-2 p-0.5 rounded-full flex-shrink-0" style={{ background: 'rgba(195,186,168,0.6)', border: '1px solid rgba(180,170,148,0.4)', position: 'relative', zIndex: 1, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
         {['jobs', 'tasks'].map(t => (
           <button key={t} className="flex-1 py-1.5 rounded-full font-mono text-xs transition-all"
             style={{ background: subTab === t ? 'var(--green)' : 'transparent', color: subTab === t ? 'white' : 'var(--muted)', border: 'none', cursor: 'pointer',
