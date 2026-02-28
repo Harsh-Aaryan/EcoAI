@@ -21,8 +21,20 @@ const ZIP_KEY = 'ecocore_user_zip';
 /* Resolve initial state synchronously from localStorage */
 function getInitialLocation() {
   const savedZip = localStorage.getItem(ZIP_KEY);
-  if (savedZip && ZIP_COORDS[savedZip]) {
-    return { center: ZIP_COORDS[savedZip], source: 'zipcode', needsGeo: false };
+  if (savedZip) {
+	// If zip not in our lookup, try a geocoding API (free nominatim)
+    fetch(`https://nominatim.openstreetmap.org/search?postalcode=${savedZip}&country=us&format=json&limit=1`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+		  return { center: ([lat, lon]);, source: 'zipcode', needsGeo: false };
+        } else {
+          setError('Zip not found');
+        }
+      })
+      .catch(() => setError('Zip lookup failed'));
   }
   const savedGeo = localStorage.getItem(STORAGE_KEY);
   if (savedGeo) {
