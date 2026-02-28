@@ -18,11 +18,25 @@ const DEFAULT_CENTER = [30.267, -97.743]; // Austin TX fallback
 const STORAGE_KEY = 'ecocore_user_location';
 const ZIP_KEY = 'ecocore_user_zip';
 
-/* Resolve initial state synchronously from localStorage */
-function getInitialLocation() {
+async function getCoordsFromZip(zip) {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`
+  );
+
+  const data = await response.json();
+  if (!data.length) return null;
+
+  return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+}
+
+/* Resolve initial state asynchronously from localStorage */
+async function getInitialLocation() {
   const savedZip = localStorage.getItem(ZIP_KEY);
-  if (savedZip && ZIP_COORDS[savedZip]) {
-    return { center: ZIP_COORDS[savedZip], source: 'zipcode', needsGeo: false };
+  if (savedZip) {
+    const coords = await getCoordsFromZip(savedZip);
+    if (coords) {
+      return { center: coords, source: 'zipcode', needsGeo: false };
+    }
   }
   const savedGeo = localStorage.getItem(STORAGE_KEY);
   if (savedGeo) {
