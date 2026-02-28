@@ -41,10 +41,10 @@ export default function App() {
     return (
       <div className="phone-shell">
         <div className="h-full flex flex-col items-center justify-center solarpunk-bg" style={{ position: 'relative', overflow: 'hidden' }}>
-          <div className="anim-breathe mb-3">
-            <CircuitLeafLogo size={64} />
+          <div className="mb-3">
+            <CircuitLeafLogo size={106} />
           </div>
-          <h1 className="font-display text-xl font-light mb-2" style={{ color: 'var(--text)' }}>EcoCore</h1>
+          <h1 className="font-display text-xl font-light mb-2" style={{ color: 'var(--text)' }}>HomeNode</h1>
           <div className="flex items-center gap-2">
             <span className="inline-block w-3.5 h-3.5 border-2 rounded-full" style={{ borderColor: 'var(--green)', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
             <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Connecting…</span>
@@ -59,8 +59,8 @@ export default function App() {
     return (
       <div className="phone-shell">
         <div className="h-full flex flex-col items-center justify-center px-8 solarpunk-bg" style={{ position: 'relative', overflow: 'hidden' }}>
-          <div className="anim-breathe mb-3">
-            <CircuitLeafLogo size={64} />
+          <div className="mb-3">
+            <CircuitLeafLogo size={106} />
           </div>
           <h1 className="font-display text-xl font-bold mb-2" style={{ color: 'var(--text)' }}>Login Error</h1>
           <div className="eco-card grain p-4 mb-4 w-full max-w-xs" style={{ borderLeft: '3px solid #e74c3c' }}>

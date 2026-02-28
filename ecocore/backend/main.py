@@ -62,7 +62,7 @@ MOCK_CITY = {
     'gridStress': 'Moderate',
 }
 
-app = FastAPI(title='EcoCore API', version='0.1.0')
+app = FastAPI(title='HomeNode API', version='0.1.0')
 
 # ---------- MongoDB configuration ----------
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017')
@@ -545,4 +545,4 @@ async def plan_job(payload: PlanRequest) -> PlanResponse:
 
 @app.get('/')
 def root() -> dict[str, str]:
-    return {'message': 'EcoCore API running'}
+    return {'message': 'HomeNode API running'}

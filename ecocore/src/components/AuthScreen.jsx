@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { CircuitLeafLogo, LeafIcon, ChipIcon, SunIcon, FloatingLeaves, Sunbeam } from './Icons';
+import { CircuitLeafLogo, FloatingLeaves, Sunbeam } from './Icons';
 
 export default function AuthScreen() {
   const { loginWithRedirect, isLoading } = useAuth0();
@@ -20,26 +20,11 @@ export default function AuthScreen() {
       <Sunbeam />
 
       {/* Logo */}
-      <div className="anim-breathe mb-2">
-        <CircuitLeafLogo size={80} />
+      <div className="mb-2">
+        <CircuitLeafLogo size={132} />
       </div>
-      <h1 className="font-display text-3xl font-bold mb-0.5" style={{ color: 'var(--text)' }}>EcoCore</h1>
+      <h1 className="font-display text-3xl font-bold mb-0.5" style={{ color: 'var(--text)' }}>HomeNode</h1>
       <p className="font-mono text-xs mb-8" style={{ color: 'var(--muted)' }}>Smart City Energy Network</p>
-
-      {/* Feature pills */}
-      <div className="w-full max-w-xs space-y-2 mb-8">
-        {[
-          { icon: <LeafIcon size={15} />, text: 'Real-time grid optimization' },
-          { icon: <ChipIcon size={15} />, text: 'Carbon-aware AI scheduling' },
-          { icon: <SunIcon size={15} />, text: 'Earn from your home battery' },
-        ].map((item, i) => (
-          <div key={i} className="eco-card-glow grain flex items-center gap-3 py-2.5 px-3"
-            style={{ animation: `grow-in 400ms ease ${i * 120}ms both` }}>
-            <div className="anim-sway">{item.icon}</div>
-            <span className="font-mono text-xs">{item.text}</span>
-          </div>
-        ))}
-      </div>
 
       {/* Auth0 Login Button */}
       <button

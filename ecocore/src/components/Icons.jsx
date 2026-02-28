@@ -85,14 +85,7 @@ export const PlusIcon = ({ size = 18, color = 'var(--green)' }) => (
 );
 
 export const CircuitLeafLogo = ({ size = 72 }) => (
-  <svg width={size} height={size} viewBox="0 0 72 72" fill="none">
-    <rect x="4" y="4" width="64" height="64" rx="18" fill="var(--surface)" stroke="var(--green-soft)" strokeWidth="1" />
-    <path d="M36 16c-8 6-14 14-14 22 0 8 6 14 14 14s14-6 14-14c0-8-6-16-14-22z" fill="rgba(46,125,62,0.08)" stroke="var(--green)" strokeWidth="1.5" />
-    <line x1="36" y1="26" x2="36" y2="46" stroke="var(--green)" strokeWidth="1.5" />
-    <line x1="36" y1="34" x2="28" y2="30" stroke="var(--green-soft)" strokeWidth="1.5" />
-    <line x1="36" y1="38" x2="44" y2="34" stroke="var(--green-soft)" strokeWidth="1.5" />
-    <circle cx="36" cy="46" r="2.5" fill="var(--green)" /><circle cx="28" cy="30" r="2" fill="var(--green-soft)" /><circle cx="44" cy="34" r="2" fill="var(--green-soft)" />
-  </svg>
+  <img src="/icon.svg" alt="HomeNode" width={size} height={size} style={{ display: 'block' }} />
 );
 
 export const WarnLeafIcon = ({ size = 16 }) => (

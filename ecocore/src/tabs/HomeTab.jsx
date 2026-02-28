@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import { ComposedChart, Line, Area, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 import BatteryGauge from '../components/BatteryGauge';
 import { LeafIcon, SunIcon, BoltIcon, ChipIcon } from '../components/Icons';
@@ -22,6 +23,15 @@ function getTimeOfDay(hour) {
 }
 
 export default function HomeTab() {
+  const { user } = useAuth0();
+  const displayName = (() => {
+    if (user?.given_name) return user.given_name;
+    if (user?.name && !user.name.includes('@')) return user.name.split(' ')[0];
+    // nickname or email prefix — strip numbers, capitalize
+    const raw = user?.nickname || user?.email?.split('@')[0] || 'User';
+    const clean = raw.replace(/[0-9_\.]/g, ' ').trim().split(/\s+/)[0];
+    return clean ? clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase() : 'User';
+  })();
   const hour = new Date().getHours();
   const minutes = new Date().getMinutes();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
@@ -64,7 +74,24 @@ export default function HomeTab() {
   const weather = useWeather(center);
   const geo = useGeocode(center);
   const homeStats = wt.homeStats || mockHomeStats;
-  const chartData = wt.chartData?.length ? wt.chartData : mockChartData;
+
+  // Build real chart from Open-Meteo hourly data when backend returns mock
+  const liveChart = (() => {
+    if (wt.chartData?.length && wt.sources?.length > 0) return wt.chartData;
+    if (weather.hourlyTemp?.length >= 24) {
+      return weather.hourlyTemp.slice(0, 24).map(h => {
+        const cloud = (h.cloudCover ?? 50) / 100;
+        const carbon = Math.round(30 + cloud * 40 + (h.windSpeed > 15 ? -10 : 0));
+        const price = Number((0.04 + cloud * 0.06 + (h.temp > 30 ? 0.03 : 0)).toFixed(3));
+        return { hour: h.hour, carbon, price };
+      });
+    }
+    return mockChartData;
+  })();
+  const chartData = liveChart;
+  const chartSource = (wt.sources?.length > 0)
+    ? (wt.sources.includes('eia-chart') ? 'EIA data' : wt.sources.includes('watttime-forecast') ? 'WattTime' : 'Backend')
+    : (weather.hourlyTemp?.length >= 24 ? 'Open-Meteo' : 'Mock');
   const fuelMix = wt.fuelMix;
 
   // Use real solar output from Open-Meteo if available
@@ -98,7 +125,7 @@ export default function HomeTab() {
         {/* Row 1: greeting + clean badge */}
         <div className="flex items-center justify-between mb-2">
           <h1 className="font-display text-base font-light italic" style={{ color: '#fff', textShadow: '0 1px 8px rgba(0,0,0,0.35)' }}>
-            {greeting}, {userData.name}
+            {greeting}, {displayName}
           </h1>
           <div className="flex items-center gap-1.5">
             {/* Weather badge — live from Open-Meteo */}
@@ -263,7 +290,7 @@ export default function HomeTab() {
             <span className="font-display" style={{ fontSize: 11 }}>24-Hour Grid Forecast</span>
             {!wt.loading && (
               <span className="font-mono" style={{ fontSize: 8, color: 'var(--muted)' }}>
-                {wt.sources?.includes('eia-chart') ? 'EIA data' : wt.sources?.includes('watttime-forecast') ? 'WattTime' : 'Mock'}
+                {chartSource}
               </span>
             )}
           </div>

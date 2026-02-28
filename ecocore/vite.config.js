@@ -10,8 +10,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'EcoCore — Smart City Energy',
-        short_name: 'EcoCore',
+        name: 'HomeNode — Smart City Energy',
+        short_name: 'HomeNode',
         description: 'Residential energy & AI compute dashboard',
         theme_color: '#f4efdf',
         background_color: '#f4efdf',
