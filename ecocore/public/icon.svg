@@ -1,18 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#f4efdf"/>
-  <g transform="translate(256,256)">
-    <!-- Leaf shape -->
-    <path d="M0,-160 C80,-140 160,-60 160,40 C160,100 120,160 40,180 C20,185 0,186 0,186 C0,186 -20,185 -40,180 C-120,160 -160,100 -160,40 C-160,-60 -80,-140 0,-160Z" fill="#2e7d3e" opacity="0.9"/>
-    <!-- Leaf vein -->
-    <line x1="0" y1="-140" x2="0" y2="180" stroke="#f4efdf" stroke-width="4" opacity="0.5"/>
-    <line x1="0" y1="-60" x2="60" y2="20" stroke="#f4efdf" stroke-width="3" opacity="0.4"/>
-    <line x1="0" y1="-60" x2="-60" y2="20" stroke="#f4efdf" stroke-width="3" opacity="0.4"/>
-    <line x1="0" y1="0" x2="50" y2="70" stroke="#f4efdf" stroke-width="3" opacity="0.4"/>
-    <line x1="0" y1="0" x2="-50" y2="70" stroke="#f4efdf" stroke-width="3" opacity="0.4"/>
-    <!-- Sun circle -->
-    <circle cx="70" cy="-100" r="32" fill="#c98b1a" opacity="0.85"/>
-    <circle cx="70" cy="-100" r="22" fill="#f4efdf" opacity="0.2"/>
-  </g>
-  <!-- E letter -->
-  <text x="256" y="420" text-anchor="middle" font-family="serif" font-weight="700" font-size="100" fill="#1c2b1e" opacity="0.15">EC</text>
-</svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="788.71069"
+   height="773.88196"
+   viewBox="0 0 788.71069 773.88196"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+     id="defs1"><linearGradient
+       id="linearGradient21"><stop
+         style="stop-color:#2c5021;stop-opacity:0;"
+         offset="0"
+         id="stop22" /><stop
+         style="stop-color:#2c5021;stop-opacity:1;"
+         offset="0.09845132"
+         id="stop24" /><stop
+         style="stop-color:#2c5021;stop-opacity:1;"
+         offset="0.89601767"
+         id="stop25" /><stop
+         style="stop-color:#2c5021;stop-opacity:0;"
+         offset="1"
+         id="stop23" /></linearGradient><linearGradient
+       id="linearGradient18"><stop
+         style="stop-color:#2c5021;stop-opacity:0;"
+         offset="0"
+         id="stop18" /><stop
+         style="stop-color:#2c5021;stop-opacity:1;"
+         offset="0.10176992"
+         id="stop20" /><stop
+         style="stop-color:#2c5021;stop-opacity:1;"
+         offset="0.89823008"
+         id="stop21" /><stop
+         style="stop-color:#2c5021;stop-opacity:0;"
+         offset="1"
+         id="stop19" /></linearGradient><linearGradient
+       xlink:href="#linearGradient18"
+       id="linearGradient19"
+       x1="145.64465"
+       y1="539.30603"
+       x2="934.35535"
+       y2="539.30603"
+       gradientUnits="userSpaceOnUse" /><linearGradient
+       xlink:href="#linearGradient21"
+       id="linearGradient23"
+       x1="160.47345"
+       y1="539.30603"
+       x2="934.35529"
+       y2="539.30603"
+       gradientUnits="userSpaceOnUse" /></defs><g
+     id="layer1"
+     transform="translate(-145.64465,-153.05904)"><path
+       style="fill:none;fill-opacity:1;stroke:url(#linearGradient23);stroke-width:25;stroke-linecap:round;stroke-miterlimit:5;stroke-dasharray:none;stroke-opacity:1"
+       d="m 921.85535,453.19438 h -94.8891 V 537.8252 H 699.5926 827.06996 v 87.59244 h 94.03425 M 172.97339,453.19438 h 94.8891 V 537.8252 H 395.23614 267.75878 v 87.59244 h -94.03425"
+       id="path16-8"
+       transform="rotate(-90,544.05419,543.3602)" /><path
+       style="fill:none;fill-opacity:1;stroke:url(#linearGradient19);stroke-width:25;stroke-linecap:round;stroke-miterlimit:5;stroke-dasharray:none;stroke-opacity:1"
+       d="m 921.85535,453.19438 h -94.8891 V 537.8252 H 699.5926 827.06996 v 87.59244 h 94.03425 M 158.14465,453.19438 h 94.8891 V 537.8252 H 380.4074 252.93004 v 87.59244 h -94.03425"
+       id="path16" /><ellipse
+       style="fill:#b3d0b3;fill-opacity:1;stroke:#2c5021;stroke-width:10;stroke-linecap:round;stroke-miterlimit:2.1;stroke-dasharray:none;stroke-opacity:1"
+       id="path9"
+       cx="431.4617"
+       cy="473.06268"
+       rx="191.36501"
+       ry="191.36456"
+       transform="matrix(1.0544771,0,0,1.0544771,85.033517,41.166234)" /><path
+       style="fill:#2c5021;fill-opacity:1;stroke:#2c5021;stroke-width:10;stroke-linecap:round;stroke-miterlimit:4.7;stroke-dasharray:none;stroke-opacity:1"
+       id="path10"
+       d="m 567.10657,478.82069 -322.32209,0 161.16105,-279.13911 z"
+       transform="matrix(0.77238288,0,0,0.48623228,225.19392,262.83235)" /><rect
+       style="fill:#2c5021;fill-opacity:1;stroke:#2c5021;stroke-width:10;stroke-linecap:round;stroke-miterlimit:2.1;stroke-dasharray:none;stroke-opacity:1"
+       id="rect10"
+       width="217.51375"
+       height="217.51375"
+       x="309.63022"
+       y="370.84311"
+       transform="matrix(0.86187033,0,0,0.69385346,179.40457,257.35662)"
+       ry="2.0578046"
+       rx="0" /><rect
+       style="fill:#b3d0b3;fill-opacity:1;stroke:#b3d0b3;stroke-width:10;stroke-linecap:round;stroke-miterlimit:2.1;stroke-dasharray:none;stroke-opacity:1"
+       id="rect11"
+       width="52.949005"
+       height="93.994148"
+       x="490.83267"
+       y="622.39258"
+       transform="translate(22.692827,-34.879365)"
+       ry="0.89144981"
+       rx="0" /></g></svg>
