@@ -93,10 +93,10 @@ export default function App() {
       {/* Bottom nav — 5 tabs */}
       <div className="flex items-center justify-around flex-shrink-0 py-1.5 pb-3"
         style={{
-          background: 'rgba(210,200,180,0.7)',
-          backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-          borderTop: '1px solid rgba(180,170,148,0.4)',
-          boxShadow: '0 -2px 12px rgba(44,80,50,0.06)',
+          background: 'rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
+          borderTop: '1px solid rgba(255,255,255,0.2)',
+          boxShadow: '0 -4px 24px rgba(0,0,0,0.08)',
           position: 'relative', zIndex: 2,
         }}>
         {TABS.map(({ key, label, Icon }) => {

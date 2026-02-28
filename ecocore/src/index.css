@@ -478,6 +478,123 @@ select.eco-input option {
 .vine-left {
   position: relative;
 }
+
+/* ══ Sky-zone elements ══ */
+
+/* Sun — centred, soft glow pulse */
+.sky-sun {
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 54px;
+  height: 54px;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 10px rgba(245,200,66,0.45));
+  animation: sky-sun-pulse 4s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes sky-sun-pulse {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(245,200,66,0.40)); transform: translateX(-50%) scale(1); }
+  50%      { filter: drop-shadow(0 0 18px rgba(245,200,66,0.65)); transform: translateX(-50%) scale(1.06); }
+}
+
+/* Moon — centred, gentle glow */
+.sky-moon {
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 48px;
+  opacity: 0.90;
+  filter: drop-shadow(0 0 8px rgba(200,210,240,0.5));
+  animation: sky-moon-glow 5s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes sky-moon-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(200,210,240,0.4)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(200,210,240,0.7)); }
+}
+
+/* Stars — scattered, twinkling */
+.sky-star {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  z-index: 1;
+  animation: sky-twinkle 3s ease-in-out infinite;
+}
+.sky-star--1 { top: 8%;  left: 12%; animation-delay: 0s;   }
+.sky-star--2 { top: 4%;  left: 28%; animation-delay: 0.7s; width: 7px; height: 7px; }
+.sky-star--3 { top: 18%; left: 72%; animation-delay: 1.4s; }
+.sky-star--4 { top: 6%;  left: 82%; animation-delay: 0.3s; width: 8px; height: 8px; }
+.sky-star--5 { top: 30%; left: 18%; animation-delay: 2.0s; width: 6px; height: 6px; }
+.sky-star--6 { top: 24%; left: 88%; animation-delay: 1.1s; width: 7px; height: 7px; }
+.sky-star--7 { top: 14%; left: 52%; animation-delay: 1.8s; width: 6px; height: 6px; }
+
+@keyframes sky-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50%      { opacity: 0.9;  transform: scale(1.1);  }
+}
+
+/* Clouds — drifting, always visible, weather-reactive */
+.sky-cloud {
+  position: absolute;
+  height: auto;
+  opacity: 0.6;
+  z-index: 3;
+  will-change: transform;
+}
+.sky-cloud--1 {
+  width: 110px;
+  top: 35%;
+  animation: sky-drift-1 135s linear infinite;
+}
+.sky-cloud--2 {
+  width: 90px;
+  top: 8%;
+  opacity: 0.50;
+  animation: sky-drift-2 165s linear infinite;
+  animation-delay: -45s;
+}
+.sky-cloud--3 {
+  width: 80px;
+  top: 58%;
+  opacity: 0.42;
+  animation: sky-drift-3 150s linear infinite;
+  animation-delay: -30s;
+}
+.sky-cloud--4 {
+  width: 100px;
+  top: 22%;
+  opacity: 0.38;
+  animation: sky-drift-2 142s linear infinite;
+  animation-delay: -75s;
+}
+.sky-cloud--5 {
+  width: 70px;
+  top: 50%;
+  opacity: 0.32;
+  animation: sky-drift-1 158s linear infinite;
+  animation-delay: -90s;
+}
+
+@keyframes sky-drift-1 {
+  0%   { transform: translateX(-120px); }
+  100% { transform: translateX(calc(100vw + 120px)); }
+}
+@keyframes sky-drift-2 {
+  0%   { transform: translateX(calc(100vw + 100px)); }
+  100% { transform: translateX(-100px); }
+}
+@keyframes sky-drift-3 {
+  0%   { transform: translateX(-100px); }
+  100% { transform: translateX(calc(100vw + 100px)); }
+}
 .vine-left::before {
   content: '';
   position: absolute;

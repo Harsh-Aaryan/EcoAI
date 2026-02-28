@@ -8,6 +8,10 @@ import useWattTimeData from '../hooks/useWattTimeData';
 import useWeather from '../hooks/useWeather';
 import useGeocode from '../hooks/useGeocode';
 import houseSvg from '../assets/house.svg';
+import sunSvg from '../assets/sun.svg';
+import moonSvg from '../assets/moon.svg';
+import cloudSvg from '../assets/cloud.svg';
+import starSvg from '../assets/star.svg';
 
 /* ── Determine time-of-day token ── */
 function getTimeOfDay(hour) {
@@ -140,6 +144,40 @@ export default function HomeTab() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ─── SKY SCENE ─── sun/moon + clouds + stars ─── */}
+      <div className="sky-zone" style={{ position: 'absolute', top: '22%', left: 0, right: 0, height: '22%', zIndex: 1, pointerEvents: 'none', overflow: 'hidden' }}>
+        {/* Sun (day/dawn/evening) or Moon (night) */}
+        {tod === 'night' ? (
+          <img src={moonSvg} alt="" aria-hidden className="sky-moon" />
+        ) : (
+          <img src={sunSvg} alt="" aria-hidden className="sky-sun" />
+        )}
+
+        {/* Stars — night only */}
+        {tod === 'night' && (
+          <>
+            <img src={starSvg} alt="" aria-hidden className="sky-star sky-star--1" />
+            <img src={starSvg} alt="" aria-hidden className="sky-star sky-star--2" />
+            <img src={starSvg} alt="" aria-hidden className="sky-star sky-star--3" />
+            <img src={starSvg} alt="" aria-hidden className="sky-star sky-star--4" />
+            <img src={starSvg} alt="" aria-hidden className="sky-star sky-star--5" />
+            <img src={starSvg} alt="" aria-hidden className="sky-star sky-star--6" />
+            <img src={starSvg} alt="" aria-hidden className="sky-star sky-star--7" />
+          </>
+        )}
+
+        {/* Clouds — count driven by live cloudCover % from weather API */}
+        {(() => {
+          const cc = weather.cloudCover ?? 30; // fallback to light clouds
+          // 0–20% → 1 cloud, 21–50% → 2, 51–75% → 3, 76–90% → 4, 91–100% → 5
+          const count = cc <= 20 ? 1 : cc <= 50 ? 2 : cc <= 75 ? 3 : cc <= 90 ? 4 : 5;
+          const ids = ['sky-cloud--1','sky-cloud--2','sky-cloud--3','sky-cloud--4','sky-cloud--5'];
+          return ids.slice(0, count).map(id => (
+            <img key={id} src={cloudSvg} alt="" aria-hidden className={`sky-cloud ${id}`} />
+          ));
+        })()}
       </div>
 
       {/* ─── CENTER ─── Battery gauge over the house door ─── */}
