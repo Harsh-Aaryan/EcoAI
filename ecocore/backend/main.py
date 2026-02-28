@@ -8,6 +8,9 @@ from typing import Literal
 import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+
+# asynchronous MongoDB driver
+from motor.motor_asyncio import AsyncIOMotorClient
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -19,6 +22,25 @@ GROQ_MODEL = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
 ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv('ALLOWED_ORIGINS', '*').split(',') if origin.strip()]
 
 app = FastAPI(title='EcoCore API', version='0.1.0')
+
+# ---------- MongoDB configuration ----------
+MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017')
+MONGO_DB = os.getenv('MONGO_DB', 'ecocore')
+
+
+@app.on_event('startup')
+async def startup_db_client() -> None:
+    """Create MongoDB client and attach to FastAPI app."""
+    app.mongodb_client = AsyncIOMotorClient(MONGO_URI)
+    app.mongodb = app.mongodb_client[MONGO_DB]
+
+
+@app.on_event('shutdown')
+async def shutdown_db_client() -> None:
+    """Close MongoDB client when the application shuts down."""
+    app.mongodb_client.close()
+
+# ------------------------------------------
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,6 +74,17 @@ def health() -> dict[str, str]:
     return {'status': 'ok'}
 
 
+@app.get('/api/health/db')
+async def health_db() -> dict[str, str]:
+    """Optional health endpoint that verifies a round‑trip to MongoDB."""
+    try:
+        # list_collection_names will trigger a network call
+        await app.mongodb.list_collection_names()
+        return {'status': 'ok', 'db': 'reachable'}
+    except Exception as e:  # pragma: no cover - simple health check
+        raise HTTPException(status_code=503, detail=f'database error: {e}')
+
+
 @app.post('/api/jobs/plan', response_model=PlanResponse)
 async def plan_job(payload: PlanRequest) -> PlanResponse:
     # Deterministic fallback plan if key is missing or provider fails
@@ -64,6 +97,15 @@ async def plan_job(payload: PlanRequest) -> PlanResponse:
     )
 
     if not GROQ_API_KEY:
+        # even without a model key we can log the request/response for local
+        # debugging or metrics. ignore errors since persistence is optional.
+        try:
+            await app.mongodb.job_plans.insert_one({
+                'request': payload.model_dump(),
+                'response': fallback.model_dump(),
+            })
+        except Exception:  # pragma: no cover
+            pass
         return fallback
 
     system_prompt = (
@@ -104,15 +146,34 @@ async def plan_job(payload: PlanRequest) -> PlanResponse:
         content = resp.json()['choices'][0]['message']['content']
         parsed = json.loads(content)
 
-        return PlanResponse(
+        result = PlanResponse(
             window=str(parsed.get('window') or fallback.window),
             reason=str(parsed.get('reason') or fallback.reason),
             estimatedSavings=str(parsed.get('estimatedSavings') or fallback.estimatedSavings),
             model=GROQ_MODEL,
             source='groq',
         )
+        return result
     except Exception:
         return fallback
+    finally:
+        # store a record of the request/response for auditing or analysis
+        try:
+            # we always have a `result` variable in normal flow, but in the
+            # fallback case we simply recreate the response here
+            record = {
+                'request': payload.model_dump(),
+                'response': (result.model_dump() if 'result' in locals() else {
+                    'window': fallback.window,
+                    'reason': fallback.reason,
+                    'estimatedSavings': fallback.estimatedSavings,
+                    'model': fallback.model,
+                    'source': fallback.source,
+                }),
+            }
+            await app.mongodb.job_plans.insert_one(record)
+        except Exception:  # pragma: no cover - noncritical logging
+            pass
 
 
 @app.get('/')

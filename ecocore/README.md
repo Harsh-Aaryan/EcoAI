@@ -28,12 +28,26 @@ Backend health check:
 
 ## 2) Environment variables
 
+### MongoDB (optional storage)
+
+If you'd like to persist job requests or other data, the backend now
+supports MongoDB. Set the following variables in your `.env`:
+
+- `MONGO_URI` – full connection string for your cluster or local server.
+- `MONGO_DB` – database name (defaults to `ecocore`).
+
+A simple health check is available at `/api/health/db` which will report
+`db: reachable` when the server can talk to the database.
+
+
 Use `.env` at project root (already gitignored):
 
 - `GROQ_API_KEY` (server only)
 - `GROQ_MODEL` (default: `llama-3.3-70b-versatile`)
 - `ALLOWED_ORIGINS` (comma-separated frontend origins)
 - `VITE_API_BASE_URL` (frontend backend URL)
+- `MONGO_URI` (connection string, e.g. `mongodb://localhost:27017` or a cloud URI)
+- `MONGO_DB` (database name, default `ecocore`)
 
 Important: never use `VITE_GROQ_API_KEY`; `VITE_` variables are exposed to browser.
 
