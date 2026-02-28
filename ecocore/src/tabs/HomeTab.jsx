@@ -3,11 +3,13 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { ComposedChart, Line, Area, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 import BatteryGauge from '../components/BatteryGauge';
 import { LeafIcon, SunIcon, BoltIcon, ChipIcon } from '../components/Icons';
-import { homeStats as mockHomeStats, activeJob, chartData as mockChartData, userData } from '../data/mock';
+import { homeStats as mockHomeStats, chartData as mockChartData, userData } from '../data/mock';
 import useLocation from '../hooks/useLocation';
 import useWattTimeData from '../hooks/useWattTimeData';
 import useWeather from '../hooks/useWeather';
 import useGeocode from '../hooks/useGeocode';
+import useJobs from '../hooks/useJobs';
+import { useUnits } from '../hooks/useUnits';
 import houseSvg from '../assets/house.svg';
 import sunSvg from '../assets/sun.svg';
 import moonSvg from '../assets/moon.svg';
@@ -73,11 +75,17 @@ export default function HomeTab() {
   const wt = useWattTimeData(center);
   const weather = useWeather(center);
   const geo = useGeocode(center);
+  const { jobs } = useJobs();
+  const { convertTemp, convertSpeed, tempUnit, speedUnit } = useUnits();
   const homeStats = wt.homeStats || mockHomeStats;
 
+  // Latest job from shared context (running first, then most recent)
+  const latestJob = jobs.find(j => j.status === 'running') || jobs[0] || null;
+
   // Build real chart from Open-Meteo hourly data when backend returns mock
+  const hasRealChart = wt.sources?.includes('eia-chart') || wt.sources?.includes('watttime-forecast');
   const liveChart = (() => {
-    if (wt.chartData?.length && wt.sources?.length > 0) return wt.chartData;
+    if (wt.chartData?.length && hasRealChart) return wt.chartData;
     if (weather.hourlyTemp?.length >= 24) {
       return weather.hourlyTemp.slice(0, 24).map(h => {
         const cloud = (h.cloudCover ?? 50) / 100;
@@ -89,8 +97,8 @@ export default function HomeTab() {
     return mockChartData;
   })();
   const chartData = liveChart;
-  const chartSource = (wt.sources?.length > 0)
-    ? (wt.sources.includes('eia-chart') ? 'EIA data' : wt.sources.includes('watttime-forecast') ? 'WattTime' : 'Backend')
+  const chartSource = hasRealChart
+    ? (wt.sources.includes('eia-chart') ? 'EIA data' : 'WattTime')
     : (weather.hourlyTemp?.length >= 24 ? 'Open-Meteo' : 'Mock');
   const fuelMix = wt.fuelMix;
 
@@ -103,8 +111,8 @@ export default function HomeTab() {
     { label: 'Region', value: wt.region || userData.gridRegion },
     { label: 'Grid', value: wt.eiaRespondent || 'ERCO' },
     ...(weather.temperature != null ? [
-      { label: 'Temp', value: `${Math.round(weather.temperature)}°C` },
-      { label: 'Wind', value: `${Math.round(weather.windSpeed || 0)} km/h` },
+      { label: 'Temp', value: `${convertTemp(weather.temperature)}${tempUnit}` },
+      { label: 'Wind', value: `${convertSpeed(weather.windSpeed || 0)} ${speedUnit}` },
     ] : []),
     ...(fuelMix ? [
       { label: 'Solar', value: `${Math.round(fuelMix.solar)} MW` },
@@ -132,7 +140,7 @@ export default function HomeTab() {
             {weather.temperature != null && (
               <div className="frost-panel" style={{ padding: '3px 8px', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#fff', borderRadius: 'var(--radius-pill)' }}>
                 <span>{weather.weatherEmoji}</span>
-                <span style={{ fontFamily: 'var(--font-mono)' }}>{Math.round(weather.temperature)}° · {Math.round(weather.windSpeed || 0)} km/h</span>
+                <span style={{ fontFamily: 'var(--font-mono)' }}>{convertTemp(weather.temperature)}° · {convertSpeed(weather.windSpeed || 0)} {speedUnit}</span>
               </div>
             )}
             <div className="frost-panel" style={{ padding: '4px 12px', display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#fff', borderRadius: 'var(--radius-pill)' }}>
@@ -168,6 +176,7 @@ export default function HomeTab() {
         </div>
 
         {/* Row 3: AI job running — compact bar */}
+        {latestJob ? (
         <div style={{
           padding: '6px 12px',
           marginTop: 2,
@@ -177,15 +186,18 @@ export default function HomeTab() {
           borderRadius: 12,
         }}>
           <div className="flex justify-between items-center mb-1">
-            <span className="font-display" style={{ fontSize: 11, color: '#fff' }}>{activeJob.name}</span>
-            <span className="font-mono anim-breathe" style={{ fontSize: 10, color: '#6aff8d' }}>Running</span>
+            <span className="font-display" style={{ fontSize: 11, color: '#fff' }}>{latestJob.name}</span>
+            <span className="font-mono" style={{ fontSize: 10, color: latestJob.status === 'running' ? '#6aff8d' : latestJob.status === 'done' ? '#7dd8ff' : '#f5c842', fontWeight: 600 }}>
+              {latestJob.status === 'running' ? 'Running' : latestJob.status === 'done' ? 'Completed' : latestJob.status === 'error' ? 'Error' : 'Queued'}
+            </span>
           </div>
           <div style={{ height: 3, background: 'rgba(255,255,255,0.15)', borderRadius: 99, overflow: 'hidden', marginBottom: 3 }}>
-            <div style={{ width: `${activeJob.progress}%`, height: '100%', borderRadius: 99, background: 'linear-gradient(90deg, #2e7d3e, #6aad73)' }} />
+            <div style={{ width: `${latestJob.progress}%`, height: '100%', borderRadius: 99, background: latestJob.status === 'done' ? 'linear-gradient(90deg, #4a9eff, #7dd8ff)' : 'linear-gradient(90deg, #2e7d3e, #6aad73)' }} />
           </div>
           <div className="flex justify-between items-center">
             <span className="font-mono" style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)' }}>
-              {activeJob.powerDraw} kW · {activeJob.carbonCost} kg CO₂ · {(homeStats.gridPrice ?? 0).toFixed(3)} $/kWh
+              {latestJob.power} · {latestJob.carbon} · {(homeStats.gridPrice ?? 0).toFixed(3)} $/kWh
+              {latestJob.tokens > 0 && ` · ${latestJob.tokens} tok`}
             </span>
             <div className="flex gap-1">
               {aiDensity.slice(0, 3).map((item) => (
@@ -199,6 +211,31 @@ export default function HomeTab() {
             </div>
           </div>
         </div>
+        ) : (
+        <div style={{
+          padding: '6px 12px',
+          marginTop: 2,
+          background: 'rgba(0,0,0,0.3)',
+          backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 12,
+        }}>
+          <div className="flex justify-between items-center">
+            <span className="font-display" style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>No AI jobs running</span>
+            <span className="font-mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Idle</span>
+          </div>
+          <div className="flex gap-1 mt-1">
+            {aiDensity.slice(0, 3).map((item) => (
+              <span key={item.label} className="font-mono" style={{
+                fontSize: 7, color: 'rgba(255,255,255,0.7)',
+                background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '1px 4px',
+              }}>
+                {item.label}: {item.value}
+              </span>
+            ))}
+          </div>
+        </div>
+        )}
       </div>
 
       {/* ─── SKY SCENE ─── sun/moon + clouds + stars ─── */}

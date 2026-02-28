@@ -8,6 +8,8 @@ import CityTab from './tabs/CityTab';
 import JobsTab from './tabs/JobsTab';
 import RevenueTab from './tabs/RevenueTab';
 import { HomeIcon, CityIcon, JobsIcon, RevenueIcon, SettingsIcon, CircuitLeafLogo } from './components/Icons';
+import { JobsProvider } from './hooks/useJobs';
+import { UnitsProvider } from './hooks/useUnits';
 import houseSvg from './assets/house.svg';
 
 const TABS = [
@@ -106,6 +108,8 @@ export default function App() {
   };
 
   return (
+    <UnitsProvider>
+    <JobsProvider>
     <div className="phone-shell">
     <div className="h-full flex flex-col" style={{ position: 'relative', overflow: 'hidden' }}>
       {/* House SVG — persistent background across all tabs */}
@@ -149,5 +153,7 @@ export default function App() {
       </div>
     </div>
     </div>
+    </JobsProvider>
+    </UnitsProvider>
   );
 }

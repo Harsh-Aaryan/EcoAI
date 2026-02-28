@@ -2,19 +2,32 @@ import React, { useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { userData, settingsToggles } from '../data/mock';
 import useLocation from '../hooks/useLocation';
+import { useUnits } from '../hooks/useUnits';
 
 export default function SettingsTab() {
   const { user, logout } = useAuth0();
   const { source, setZipcode, center } = useLocation();
+  const { system: unitSystem, setSystem: setUnitSystem } = useUnits();
   const [battery, setBattery] = useState(userData.batteryCapacity);
   const [toggles, setToggles] = useState(settingsToggles.map(() => true));
   const [region, setRegion] = useState(userData.gridRegion);
   const [zipInput, setZipInput] = useState(localStorage.getItem('ecocore_user_zip') || '');
+  const [computeMode, setComputeMode] = useState(localStorage.getItem('homenode_compute_mode') || 'cloud');
+  const [sshKey, setSshKey] = useState(localStorage.getItem('homenode_ssh_key') || '');
 
   const handleToggle = (i) => {
     const next = [...toggles];
     next[i] = !next[i];
     setToggles(next);
+  };
+
+  const handleComputeModeChange = (mode) => {
+    setComputeMode(mode);
+    localStorage.setItem('homenode_compute_mode', mode);
+  };
+
+  const handleSshSave = () => {
+    localStorage.setItem('homenode_ssh_key', sshKey.trim());
   };
 
   const handleZipSubmit = () => {
@@ -113,6 +126,89 @@ export default function SettingsTab() {
           <span className="font-mono" style={{ fontSize: 11, color: 'var(--muted)' }}>Inverter</span>
           <span className="font-mono" style={{ fontSize: 11 }}>{userData.inverter}</span>
         </div>
+      </div>
+
+      {/* Unit System */}
+      <div className="eco-card grain mb-2 flex-shrink-0">
+        <div className="font-display text-xs mb-2">Unit System</div>
+        <div className="flex gap-1.5">
+          {[
+            { key: 'metric', label: '🌡️ Metric', desc: '°C · km/h' },
+            { key: 'imperial', label: '🌡️ Imperial', desc: '°F · mph' },
+          ].map(opt => (
+            <button key={opt.key}
+              className="flex-1 text-left"
+              style={{
+                padding: '8px 10px',
+                borderRadius: 10,
+                border: unitSystem === opt.key ? '1.5px solid var(--green)' : '1.5px solid var(--border)',
+                background: unitSystem === opt.key ? 'rgba(46,125,62,0.08)' : 'transparent',
+                cursor: 'pointer',
+                transition: 'all 150ms',
+              }}
+              onClick={() => setUnitSystem(opt.key)}
+            >
+              <div className="font-mono" style={{ fontSize: 11, color: unitSystem === opt.key ? 'var(--green)' : 'var(--text)' }}>{opt.label}</div>
+              <div className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>{opt.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Compute Provider */}
+      <div className="eco-card grain mb-2 flex-shrink-0">
+        <div className="font-display text-xs mb-2">AI Compute Provider</div>
+        <div className="font-mono mb-2" style={{ fontSize: 10, color: 'var(--muted)' }}>
+          Choose where AI jobs run. Cloud uses the default Groq API. Local connects to your machine via SSH.
+        </div>
+
+        <div className="flex gap-1.5 mb-2">
+          {[
+            { key: 'cloud', label: '☁️ Cloud (Groq)', desc: 'Default · No setup needed' },
+            { key: 'local', label: '🖥️ Local Machine', desc: 'SSH into your hardware' },
+          ].map(opt => (
+            <button key={opt.key}
+              className="flex-1 text-left"
+              style={{
+                padding: '8px 10px',
+                borderRadius: 10,
+                border: computeMode === opt.key ? '1.5px solid var(--green)' : '1.5px solid var(--border)',
+                background: computeMode === opt.key ? 'rgba(46,125,62,0.08)' : 'transparent',
+                cursor: 'pointer',
+                transition: 'all 150ms',
+              }}
+              onClick={() => handleComputeModeChange(opt.key)}
+            >
+              <div className="font-mono" style={{ fontSize: 11, color: computeMode === opt.key ? 'var(--green)' : 'var(--text)' }}>{opt.label}</div>
+              <div className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>{opt.desc}</div>
+            </button>
+          ))}
+        </div>
+
+        {computeMode === 'local' && (
+          <div className="anim-fadein">
+            <div className="font-mono mb-1" style={{ fontSize: 10, color: 'var(--muted)' }}>SSH Public Key</div>
+            <textarea
+              className="eco-input w-full mb-1.5"
+              placeholder="ssh-rsa AAAA... user@host"
+              value={sshKey}
+              onChange={e => setSshKey(e.target.value)}
+              rows={3}
+              style={{ padding: '6px 10px', fontSize: 10, fontFamily: 'monospace', resize: 'none' }}
+            />
+            <button className="eco-btn eco-btn-primary w-full" onClick={handleSshSave}
+              style={{ padding: '6px 12px', fontSize: 11 }}>
+              Save SSH Key
+            </button>
+          </div>
+        )}
+
+        {computeMode === 'cloud' && (
+          <div className="flex items-center gap-2" style={{ padding: '4px 0' }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 6px rgba(46,125,62,0.5)' }} />
+            <span className="font-mono" style={{ fontSize: 10, color: 'var(--green)' }}>Connected to Groq · LLaMA 3.3 70B</span>
+          </div>
+        )}
       </div>
 
       {/* Automation Rules — fills remaining */}

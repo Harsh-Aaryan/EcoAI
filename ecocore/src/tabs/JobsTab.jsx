@@ -1,76 +1,40 @@
 import React, { useState } from 'react';
 import CircularProgress from '../components/CircularProgress';
 import { LeafIcon, PlusIcon, CheckIcon, WarnLeafIcon } from '../components/Icons';
-import { jobsList as initialJobs, tasksList as initialTasks } from '../data/mock';
+import { tasksList as initialTasks } from '../data/mock';
 import useLocation from '../hooks/useLocation';
 import useWattTimeData from '../hooks/useWattTimeData';
+import useJobs from '../hooks/useJobs';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000';
+/* ── Sample AI job templates ── */
+const SAMPLE_JOBS = [
+  { id: 'summarize', name: 'Text Summarization', type: 'Inference', icon: '📝', desc: 'Summarize smart grid concepts' },
+  { id: 'classify', name: 'Energy Event Classifier', type: 'Vision', icon: '🏷️', desc: 'Classify grid events by type' },
+  { id: 'generate', name: 'Optimization Advisor', type: 'Inference', icon: '⚡', desc: 'Get battery discharge advice' },
+  { id: 'embed', name: 'Knowledge Base Writer', type: 'Embedding', icon: '📚', desc: 'Generate V2G documentation' },
+  { id: 'analyze', name: 'Energy Data Analyst', type: 'Inference', icon: '📊', desc: 'Analyze 24h energy patterns' },
+];
 
 /* ── AI Jobs ── */
 function AIJobsView() {
   const { center } = useLocation();
   const wt = useWattTimeData(center);
+  const { jobs, plannerNote, runJob } = useJobs();
   const [showForm, setShowForm] = useState(false);
-  const [jobType, setJobType] = useState('Inference');
-  const [priority, setPriority] = useState('Normal');
-  const [greenOnly, setGreenOnly] = useState(true);
-  const [autoPause, setAutoPause] = useState(false);
-  const [jobs, setJobs] = useState(initialJobs);
-  const [plannerNote, setPlannerNote] = useState('');
-  const [plannerBusy, setPlannerBusy] = useState(false);
+  const [expandedJob, setExpandedJob] = useState(null);
 
   const running = jobs.filter(j => j.status === 'running').length;
   const queued = jobs.filter(j => j.status === 'queued').length;
   const done = jobs.filter(j => j.status === 'done').length;
-  const statusColor = { running: 'var(--green)', queued: 'var(--sun)', done: 'var(--sky)' };
+  const statusColor = { running: 'var(--green)', queued: 'var(--sun)', done: 'var(--sky)', error: '#b14a26' };
 
-  const handleQueue = async () => {
-    setPlannerBusy(true);
-    setPlannerNote('');
-
-    let plan = null;
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/jobs/plan`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jobType,
-          priority,
-          greenOnly,
-          autoPause,
-          gridPrice: wt.homeStats?.gridPrice ?? null,
-          carbonScore: wt.homeStats?.carbonScore ?? null,
-          cleanEnergyPct: wt.homeStats?.cleanEnergyPct ?? null,
-        }),
-      });
-
-      if (response.ok) {
-        plan = await response.json();
-        setPlannerNote(`${plan.window} · ${plan.estimatedSavings} (${plan.source})`);
-      } else {
-        setPlannerNote('Planner unavailable, queued with default policy.');
-      }
-    } catch {
-      setPlannerNote('Planner offline, queued with default policy.');
-    }
-
-    setJobs([
-      {
-        id: Date.now(),
-        name: `${jobType} Job #${jobs.length + 1}`,
-        type: jobType,
-        power: '0.20 kW',
-        carbon: '0.01 kg',
-        status: 'queued',
-        progress: 0,
-        planWindow: plan?.window,
-      },
-      ...jobs,
-    ]);
-
-    setPlannerBusy(false);
+  const runSampleJob = (sample) => {
     setShowForm(false);
+    runJob(sample, {
+      gridPrice: wt.homeStats?.gridPrice ?? null,
+      carbonScore: wt.homeStats?.carbonScore ?? null,
+      cleanEnergyPct: wt.homeStats?.cleanEnergyPct ?? null,
+    });
   };
 
   return (
@@ -94,24 +58,33 @@ function AIJobsView() {
 
       {plannerNote && (
         <div className="eco-card mb-2 py-1.5 px-2" style={{ fontSize: 10 }}>
-          <span className="font-mono" style={{ color: 'var(--muted)' }}>Planner: {plannerNote}</span>
+          <span className="font-mono" style={{ color: 'var(--green)' }}>🧠 Planner: </span>
+          <span className="font-mono" style={{ color: 'var(--muted)' }}>{plannerNote}</span>
         </div>
       )}
 
       {/* Job list — scrollable area */}
-      <div className="flex-1 min-h-0 overflow-y-auto mb-2" style={{ scrollbarWidth: 'none' }}>
+      <div className="flex-1 min-h-0 overflow-y-auto" style={{ scrollbarWidth: 'none', paddingBottom: 70 }}>
+        {jobs.length === 0 && (
+          <div className="eco-card grain text-center py-6">
+            <div className="font-display text-sm mb-1" style={{ color: 'var(--muted)' }}>No jobs yet</div>
+            <div className="font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>Tap + to run a sample AI job via Groq</div>
+          </div>
+        )}
         {jobs.map(job => (
-          <div key={job.id} className="eco-card grain mb-1.5 vine-left pl-4" style={{ padding: '7px 10px 7px 14px' }}>
+          <div key={job.id} className="eco-card grain vine-left pl-4" style={{ padding: '8px 12px 8px 14px', cursor: 'pointer', marginBottom: 8 }}
+            onClick={() => setExpandedJob(expandedJob === job.id ? null : job.id)}>
             <div className="flex justify-between items-center">
               <div>
                 <span className="font-display" style={{ fontSize: 12 }}>{job.name}</span>
-                <div className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>{job.type} · {job.power} · {job.carbon}</div>
-                {job.planWindow && (
-                  <div className="font-mono" style={{ fontSize: 9, color: 'var(--green)' }}>Window: {job.planWindow}</div>
-                )}
+                <div className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>
+                  {job.type} · {job.power} · {job.carbon}
+                  {job.tokens > 0 && ` · ${job.tokens} tokens`}
+                  {job.source && ` · ${job.source}`}
+                </div>
               </div>
-              <span className="font-mono" style={{ fontSize: 10, color: statusColor[job.status] }}>
-                {job.status === 'running' ? 'Running' : job.status === 'queued' ? 'Queued' : 'Done'}
+              <span className="font-mono" style={{ fontSize: 10, color: statusColor[job.status], fontWeight: 600 }}>
+                {job.status === 'running' ? 'Running' : job.status === 'queued' ? 'Queued' : job.status === 'error' ? 'Error' : 'Completed'}
               </span>
             </div>
             {job.status === 'running' && (
@@ -119,41 +92,79 @@ function AIJobsView() {
                 <div className="eco-progress-fill" style={{ width: `${job.progress}%`, background: 'linear-gradient(90deg, var(--green), var(--green-soft))' }} />
               </div>
             )}
+            {/* Expanded result */}
+            {expandedJob === job.id && job.result && (
+              <div className="mt-2 anim-fadein" style={{
+                background: 'rgba(46,125,62,0.06)',
+                borderRadius: 8,
+                padding: '8px 10px',
+                borderLeft: '2px solid var(--green)',
+              }}>
+                <div className="font-mono" style={{ fontSize: 9, color: 'var(--green)', marginBottom: 3, fontWeight: 600 }}>AI Output</div>
+                <div className="font-mono" style={{ fontSize: 10, color: 'var(--text)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{job.result}</div>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      {/* New job toggle */}
-      <div className="flex-shrink-0">
-        <button onClick={() => setShowForm(!showForm)} className="font-display text-xs w-full text-left mb-1"
-          style={{ color: 'var(--green)', background: 'none', border: 'none', cursor: 'pointer' }}>
-          {showForm ? '− Close' : '+ Schedule New Job'}
-        </button>
-        {showForm && (
-          <div className="eco-card grain anim-fadein">
-            <div className="flex gap-1.5 mb-2">
-              {['Inference', 'Embedding', 'Vision'].map(t => (
-                <button key={t} className={`eco-chip flex-1 ${jobType === t ? 'active' : ''}`} onClick={() => setJobType(t)}>{t}</button>
-              ))}
+      {/* New job modal / sheet */}
+      {showForm && (
+        <div style={{
+          position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 10,
+          display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        }} onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}>
+          <div className="anim-fadein" style={{
+            background: 'var(--card-bg, rgba(255,255,255,0.92))',
+            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '16px 16px 0 0',
+            padding: '16px 16px 24px',
+            width: '100%',
+            maxHeight: '60%',
+            overflowY: 'auto',
+            boxShadow: '0 -4px 24px rgba(0,0,0,0.15)',
+          }}>
+            <div className="flex justify-between items-center mb-3">
+              <span className="font-display text-sm">Run AI Job</span>
+              <button onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--muted)' }}>✕</button>
             </div>
-            <div className="flex gap-1.5 mb-2">
-              {['Low', 'Normal', 'High'].map(p => (
-                <button key={p} className={`eco-chip flex-1 ${priority === p ? 'active' : ''}`} onClick={() => setPriority(p)}>{p}</button>
-              ))}
+            <div className="font-mono mb-3" style={{ fontSize: 10, color: 'var(--muted)' }}>
+              Sample jobs powered by Groq (LLaMA 3.3 70B). Tap to run.
             </div>
-            <div className="flex justify-between items-center mb-1.5">
-              <span className="font-mono" style={{ fontSize: 11 }}>Clean energy only</span>
-              <button className={`eco-toggle ${greenOnly ? 'active' : ''}`} onClick={() => setGreenOnly(!greenOnly)} />
-            </div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-mono" style={{ fontSize: 11 }}>Auto-pause &gt; $0.20</span>
-              <button className={`eco-toggle ${autoPause ? 'active' : ''}`} onClick={() => setAutoPause(!autoPause)} />
-            </div>
-            <button className="eco-btn eco-btn-primary w-full" style={{ padding: '8px 16px', fontSize: 13, opacity: plannerBusy ? 0.7 : 1 }} onClick={handleQueue} disabled={plannerBusy}>
-              {plannerBusy ? 'Planning…' : 'Queue Job'}
-            </button>
+            {SAMPLE_JOBS.map(sample => (
+              <button key={sample.id}
+                className="eco-card grain w-full text-left mb-2 flex items-center gap-3"
+                style={{ padding: '10px 12px', cursor: 'pointer', border: 'none', transition: 'transform 100ms' }}
+                onClick={() => runSampleJob(sample)}
+              >
+                <span style={{ fontSize: 22 }}>{sample.icon}</span>
+                <div className="flex-1">
+                  <div className="font-display" style={{ fontSize: 12 }}>{sample.name}</div>
+                  <div className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>{sample.type} · {sample.desc}</div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2" strokeLinecap="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+              </button>
+            ))}
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Floating + button — bottom center */}
+      <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 5 }}>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          style={{
+            width: 52, height: 52, borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--green), #3a7d44)',
+            border: 'none', cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(46,125,62,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'transform 200ms, box-shadow 200ms',
+            transform: showForm ? 'rotate(45deg)' : 'rotate(0deg)',
+          }}
+        >
+          <PlusIcon size={24} color="white" />
+        </button>
       </div>
     </div>
   );
@@ -230,8 +241,6 @@ export default function JobsTab() {
 
   return (
     <div className="tab-page frosted-page" style={{ position: 'relative' }}>
-      <h2 className="font-display text-base font-light mb-2 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>Jobs & Tasks</h2>
-
       {/* Sub-tab switcher */}
       <div className="flex gap-0 mb-2 p-0.5 rounded-full flex-shrink-0" style={{ background: 'rgba(195,186,168,0.6)', border: '1px solid rgba(180,170,148,0.4)', position: 'relative', zIndex: 1, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
         {['jobs', 'tasks'].map(t => (

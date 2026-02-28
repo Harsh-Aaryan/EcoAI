@@ -6,6 +6,7 @@ import useLocation from '../hooks/useLocation';
 import useWattTimeData from '../hooks/useWattTimeData';
 import useWeather from '../hooks/useWeather';
 import useGeocode from '../hooks/useGeocode';
+import { useUnits } from '../hooks/useUnits';
 
 /* Small helper: fly to new center when location resolves */
 function FlyTo({ center }) {
@@ -19,6 +20,7 @@ export default function CityTab() {
   const wt = useWattTimeData(center);
   const weather = useWeather(center);
   const geo = useGeocode(center);
+  const { convertTemp, convertSpeed, tempUnit, speedUnit } = useUnits();
   const cityStats = wt.cityStats || mockCityStats;
 
   /* Readable names for EIA respondents */
@@ -94,8 +96,8 @@ export default function CityTab() {
         <div className="flex gap-2 mb-2 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
           {[
             { v: `${weather.weatherEmoji} ${weather.weatherLabel}`, l: 'Weather', c: 'var(--text)' },
-            { v: `${Math.round(weather.temperature)}°C`, l: 'Temp', c: 'var(--sun)' },
-            { v: `${Math.round(weather.windSpeed || 0)} km/h`, l: 'Wind', c: 'var(--sky)' },
+            { v: `${convertTemp(weather.temperature)}${tempUnit}`, l: 'Temp', c: 'var(--sun)' },
+            { v: `${convertSpeed(weather.windSpeed || 0)} ${speedUnit}`, l: 'Wind', c: 'var(--sky)' },
             ...(weather.aqi != null ? [{ v: weather.aqi <= 50 ? `${weather.aqi} Good` : weather.aqi <= 100 ? `${weather.aqi} Fair` : `${weather.aqi} Poor`, l: 'AQI', c: weather.aqi <= 50 ? 'var(--green)' : weather.aqi <= 100 ? 'var(--sun)' : '#d32f2f' }] : []),
           ].map((s, i) => (
             <div key={i} className="flex-1 text-center py-1" style={{

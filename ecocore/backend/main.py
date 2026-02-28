@@ -110,6 +110,19 @@ class PlanResponse(BaseModel):
     source: str
 
 
+class JobRunRequest(BaseModel):
+    jobType: str = Field(default='summarize')
+    prompt: str | None = None
+
+
+class JobRunResponse(BaseModel):
+    jobType: str
+    result: str
+    model: str
+    tokens: int
+    source: str
+
+
 def hour_label(hour: int) -> str:
     return '12a' if hour == 0 else f'{hour}a' if hour < 12 else '12p' if hour == 12 else f'{hour - 12}p'
 
@@ -541,6 +554,113 @@ async def plan_job(payload: PlanRequest) -> PlanResponse:
             await app.mongodb.job_plans.insert_one(record)
         except Exception:  # pragma: no cover - noncritical logging
             pass
+
+
+# --------------- Sample AI Job templates ---------------
+SAMPLE_JOBS = {
+    'summarize': {
+        'system': 'You are a concise summarizer. Summarize the given text in 2-3 sentences.',
+        'user': 'Summarize the concept of smart grids: Smart grids use digital technology to monitor and manage the transport of electricity from all generation sources to meet the varying electricity demands of end users. They coordinate the needs and capabilities of all generators, grid operators, end users, and electricity market stakeholders to operate all parts of the system as efficiently as possible, minimizing costs and environmental impacts while maximizing system reliability, resilience, and stability.',
+    },
+    'classify': {
+        'system': 'You are an energy data classifier. Classify the input into one category and explain briefly in 1-2 sentences.',
+        'user': 'Classify this energy event: "Solar output dropped 40% due to cloud cover while demand spiked 25% from air conditioning load during a heat wave." Categories: Grid Stress, Demand Response, Renewable Intermittency, Peak Shaving, Load Balancing.',
+    },
+    'generate': {
+        'system': 'You are an energy optimization advisor. Give a brief actionable recommendation in 2-3 sentences.',
+        'user': 'Given: Grid carbon intensity is 65%, electricity price is $0.14/kWh, home battery is at 78%, solar output is 3.2 kW. Should the homeowner discharge to grid, store for later, or continue charging? Why?',
+    },
+    'embed': {
+        'system': 'You are a technical writer. Create a brief 2-3 sentence description suitable for a knowledge base entry.',
+        'user': 'Write a knowledge base entry about: Vehicle-to-Grid (V2G) technology and how electric vehicles can serve as distributed energy storage resources for the power grid.',
+    },
+    'analyze': {
+        'system': 'You are an energy data analyst. Analyze the data and provide 2-3 key insights.',
+        'user': 'Analyze this 24h energy pattern: Morning (6-9AM): 2.1 kW solar, $0.09/kWh price, 45% carbon. Midday (10-2PM): 5.8 kW solar, $0.07/kWh, 28% carbon. Afternoon (3-5PM): 3.2 kW solar, $0.11/kWh, 52% carbon. Evening (6-9PM): 0.1 kW solar, $0.18/kWh, 71% carbon. Night: 0 kW solar, $0.06/kWh, 55% carbon.',
+    },
+}
+
+
+@app.post('/api/jobs/run')
+async def run_job(payload: JobRunRequest) -> JobRunResponse:
+    """Execute a lightweight AI job via Groq and return the result."""
+    job_type = payload.jobType.lower()
+    template = SAMPLE_JOBS.get(job_type, SAMPLE_JOBS['summarize'])
+
+    system_msg = template['system']
+    user_msg = payload.prompt or template['user']
+
+    if not GROQ_API_KEY:
+        return JobRunResponse(
+            jobType=job_type,
+            result='Groq API key not configured. Set GROQ_API_KEY to run real AI jobs.',
+            model=GROQ_MODEL,
+            tokens=0,
+            source='fallback',
+        )
+
+    body = {
+        'model': GROQ_MODEL,
+        'temperature': 0.3,
+        'max_tokens': 200,
+        'messages': [
+            {'role': 'system', 'content': system_msg},
+            {'role': 'user', 'content': user_msg},
+        ],
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=25) as client:
+            resp = await client.post(
+                'https://api.groq.com/openai/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {GROQ_API_KEY}',
+                    'Content-Type': 'application/json',
+                },
+                json=body,
+            )
+
+        if resp.status_code >= 400:
+            return JobRunResponse(
+                jobType=job_type,
+                result=f'Groq returned status {resp.status_code}',
+                model=GROQ_MODEL,
+                tokens=0,
+                source='error',
+            )
+
+        data = resp.json()
+        content = data['choices'][0]['message']['content']
+        tokens = data.get('usage', {}).get('total_tokens', 0)
+
+        result = JobRunResponse(
+            jobType=job_type,
+            result=content.strip(),
+            model=GROQ_MODEL,
+            tokens=tokens,
+            source='groq',
+        )
+
+        # log to MongoDB
+        try:
+            await app.mongodb.job_runs.insert_one({
+                'jobType': job_type,
+                'tokens': tokens,
+                'model': GROQ_MODEL,
+                'source': 'groq',
+            })
+        except Exception:
+            pass
+
+        return result
+    except Exception as e:
+        return JobRunResponse(
+            jobType=job_type,
+            result=f'Error: {str(e)}',
+            model=GROQ_MODEL,
+            tokens=0,
+            source='error',
+        )
 
 
 @app.get('/')
