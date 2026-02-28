@@ -1,8 +1,9 @@
 import React from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { cityNodes, cityStats, demandEvents, impactStats, tickerItems } from '../data/mock';
+import { cityNodes, cityStats as mockCityStats, demandEvents, impactStats } from '../data/mock';
 import useLocation from '../hooks/useLocation';
+import useWattTimeData from '../hooks/useWattTimeData';
 
 /* Small helper: fly to new center when location resolves */
 function FlyTo({ center }) {
@@ -13,12 +14,21 @@ function FlyTo({ center }) {
 
 export default function CityTab() {
   const { center, source, loading } = useLocation();
+  const wt = useWattTimeData(center);
+  const cityStats = wt.cityStats || mockCityStats;
 
   return (
     <div className="tab-page">
       {/* Header + aggregate stats inline */}
       <div className="flex items-center justify-between mb-2 flex-shrink-0">
-        <h2 className="font-display text-base font-light">City Grid</h2>
+        <div>
+          <h2 className="font-display text-base font-light">City Grid</h2>
+          {wt.region && (
+            <span className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>
+              {wt.region.replace(/_/g, ' ')}
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-1.5">
           {/* Location indicator */}
           <div className="eco-pill" style={{ background: 'rgba(46,139,150,0.1)', color: 'var(--sky)', padding: '2px 7px', fontSize: 8 }}>
@@ -44,8 +54,8 @@ export default function CityTab() {
         ))}
       </div>
 
-      {/* Map */}
-      <div className="flex-shrink-0 mb-1" style={{ height: 175, borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+      {/* Map — constrained height so demand card stays visible */}
+      <div className="flex-shrink-0 mb-2" style={{ height: 'clamp(200px, 46vh, 380px)', borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)', position: 'relative' }}>
         <MapContainer center={center} zoom={14} style={{ height: '100%', width: '100%' }} zoomControl={false} attributionControl={false}>
           <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
           <FlyTo center={center} />
@@ -72,20 +82,43 @@ export default function CityTab() {
             </CircleMarker>
           ))}
         </MapContainer>
-      </div>
 
-      {/* Ticker */}
-      <div className="overflow-hidden flex-shrink-0 mb-1" style={{ height: 16 }}>
-        <div className="anim-ticker font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>
-          {tickerItems.map((t, i) => <span key={i}>{t}{i < tickerItems.length - 1 && <span className="mx-2">·</span>}</span>)}
+        {/* Overlay gradient — z-index 1000 to sit above leaflet tiles */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1000,
+            pointerEvents: 'none',
+            background: `linear-gradient(180deg, ${wt.mapOverlay.tint} 0%, transparent 60%)`,
+          }}
+        />
+        {/* Top-left badge */}
+        <div className="eco-pill" style={{ position: 'absolute', left: 10, top: 10, zIndex: 1001, background: 'rgba(250,248,240,0.92)', color: 'var(--text)', fontSize: 9, padding: '3px 8px', backdropFilter: 'blur(4px)' }}>
+          {wt.mapOverlay.label}
+        </div>
+        {/* Bottom-left detail */}
+        <div className="eco-pill" style={{ position: 'absolute', left: 10, bottom: 10, zIndex: 1001, background: 'rgba(250,248,240,0.92)', color: 'var(--muted)', fontSize: 8, padding: '3px 8px', maxWidth: '70%', backdropFilter: 'blur(4px)' }}>
+          {wt.mapOverlay.detail}
+        </div>
+        {/* Bottom-right price */}
+        <div className="eco-pill" style={{ position: 'absolute', right: 10, bottom: 10, zIndex: 1001, background: 'rgba(250,248,240,0.92)', color: 'var(--sun)', fontSize: 9, padding: '3px 8px', fontFamily: 'var(--font-mono)', backdropFilter: 'blur(4px)' }}>
+          {wt.eiaRespondent || 'ERCO'} ${wt.homeStats?.gridPrice?.toFixed(3) || '0.082'}/kWh
         </div>
       </div>
 
-      {/* DR Events + Impact — combined card, fills remaining */}
-      <div className="eco-card grain flex-1 min-h-0 flex flex-col overflow-hidden">
+      {/* DR Events + Impact — compact to avoid blank white space */}
+      <div className="eco-card grain flex-shrink-0 overflow-hidden" style={{ padding: '10px 12px' }}>
         {/* Demand response */}
-        <div className="mb-1.5">
-          <div className="font-display text-xs mb-1">Demand Response</div>
+        <div className="mb-1">
+          <div className="flex items-center justify-between mb-1">
+            <span className="font-display text-xs">Demand Response</span>
+            {wt.demand?.demand && (
+              <span className="font-mono" style={{ fontSize: 9, color: 'var(--sky)' }}>
+                {Math.round(wt.demand.demand / 1000).toLocaleString()} GW load
+              </span>
+            )}
+          </div>
           {demandEvents.map((ev, i) => (
             <div key={i} className="flex justify-between items-center py-1 px-1.5 rounded-lg mb-0.5"
               style={{ background: ev.status === 'Upcoming' ? 'rgba(201,139,26,0.08)' : 'transparent' }}>
@@ -104,8 +137,8 @@ export default function CityTab() {
         <div className="w-full flex-shrink-0" style={{ height: 1, background: 'var(--border)' }} />
 
         {/* Impact grid */}
-        <div className="pt-1.5">
-          <div className="font-display text-xs mb-1">Your Impact</div>
+        <div className="pt-1">
+          <div className="font-display text-xs mb-0.5">Your Impact</div>
           <div className="grid grid-cols-4 gap-1">
             {[
               { v: impactStats.co2Avoided, l: 'CO₂' },

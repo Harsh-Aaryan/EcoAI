@@ -28,3 +28,8 @@ dist-ssr
 *.env
 .envrc
 .env.example
+
+# Python / WattTime API
+watttime_api.py
+__pycache__/
+*.pyc
