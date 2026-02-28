@@ -12,6 +12,12 @@ services:
         sync: false
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
+      - key: WATTTIME_USER
+        sync: false
+      - key: WATTTIME_PASS
+        sync: false
+      - key: EIA_API_KEY
+        value: DEMO_KEY
       - key: MONGO_URI
         sync: false
       - key: MONGO_DB
