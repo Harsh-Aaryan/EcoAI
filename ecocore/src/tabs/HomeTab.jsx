@@ -23,8 +23,35 @@ function getTimeOfDay(hour) {
 
 export default function HomeTab() {
   const hour = new Date().getHours();
+  const minutes = new Date().getMinutes();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   const tod = getTimeOfDay(hour);
+
+  /* ── Sun / Moon arc position ──
+     Sun rises at 6 AM (left edge), peaks at noon (centre-top), sets at 18 (right edge).
+     Moon rises at 18 (left), peaks at midnight (centre-top), sets at 6 (right). */
+  const fractionalHour = hour + minutes / 60;
+  const sunArc = (() => {
+    // Sun visible window: 5–20h  → map to 0..1
+    const rise = 5, set = 20;
+    const t = Math.max(0, Math.min(1, (fractionalHour - rise) / (set - rise)));
+    // Horizontal: 8% → 92%
+    const left = 8 + t * 84;
+    // Vertical arc (parabola): peaks at t=0.5 → top 18%, edges → top 80%
+    const top = 18 + 62 * Math.pow(2 * (t - 0.5), 2);
+    return { left, top };
+  })();
+  const moonArc = (() => {
+    // Moon visible window: 20–5h (wraps midnight) → map to 0..1
+    let elapsed;
+    if (fractionalHour >= 20) elapsed = fractionalHour - 20;
+    else if (fractionalHour < 5) elapsed = fractionalHour + 4;
+    else elapsed = 0;
+    const t = Math.max(0, Math.min(1, elapsed / 9));
+    const left = 10 + t * 80;
+    const top = 18 + 62 * Math.pow(2 * (t - 0.5), 2);
+    return { left, top };
+  })();
 
   /* set data-tod on root for CSS variable switching */
   useEffect(() => {
@@ -89,7 +116,7 @@ export default function HomeTab() {
         </div>
 
         {/* Row 2: 3 stat chips — compact, high contrast */}
-        <div className="flex gap-2 mb-2">
+        <div className="flex gap-2" style={{ marginBottom: 6 }}>
           {[
             { icon: <SunIcon size={11} />, label: 'Price', value: `$${homeStats.gridPrice.toFixed(3)}`, color: '#f5c842' },
             { icon: <LeafIcon size={11} />, label: 'Carbon', value: `${homeStats.carbonScore}%`, color: '#6aff8d' },
@@ -116,6 +143,7 @@ export default function HomeTab() {
         {/* Row 3: AI job running — compact bar */}
         <div style={{
           padding: '6px 12px',
+          marginTop: 2,
           background: 'rgba(0,0,0,0.3)',
           backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
           border: '1px solid rgba(255,255,255,0.12)',
@@ -150,9 +178,11 @@ export default function HomeTab() {
       <div className="sky-zone" style={{ position: 'absolute', top: '22%', left: 0, right: 0, height: '22%', zIndex: 1, pointerEvents: 'none', overflow: 'hidden' }}>
         {/* Sun (day/dawn/evening) or Moon (night) */}
         {tod === 'night' ? (
-          <img src={moonSvg} alt="" aria-hidden className="sky-moon" />
+          <img src={moonSvg} alt="" aria-hidden className="sky-moon"
+            style={{ left: `${moonArc.left}%`, top: `${moonArc.top}%` }} />
         ) : (
-          <img src={sunSvg} alt="" aria-hidden className="sky-sun" />
+          <img src={sunSvg} alt="" aria-hidden className="sky-sun"
+            style={{ left: `${sunArc.left}%`, top: `${sunArc.top}%` }} />
         )}
 
         {/* Stars — night only */}
@@ -181,7 +211,7 @@ export default function HomeTab() {
       </div>
 
       {/* ─── CENTER ─── Battery gauge over the house door ─── */}
-      <div style={{ position: 'absolute', top: '46%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2 }}>
+      <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2 }}>
         <div style={{
           background: 'rgba(195,186,168,0.25)',
           backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
@@ -196,10 +226,10 @@ export default function HomeTab() {
       </div>
 
       {/* ─── BOTTOM CLUSTER ─── 4 stat chips + chart ─── */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2, padding: '0 10px 4px' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2, padding: '0 10px 10px' }}>
 
         {/* 4 stat chips — frosted, translucent */}
-        <div className="grid grid-cols-4 gap-2 mb-2">
+        <div className="grid grid-cols-4 gap-2" style={{ marginBottom: 8 }}>
           {[
             { icon: <SunIcon size={11} />, label: 'Earned', value: `$${homeStats.earnedToday.toFixed(2)}`, color: '#f5c842' },
             { icon: <LeafIcon size={11} />, label: 'CO₂', value: `${homeStats.co2Avoided}kg`, color: '#6aff8d' },

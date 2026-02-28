@@ -5,6 +5,15 @@ import { CircuitLeafLogo, LeafIcon, ChipIcon, SunIcon, FloatingLeaves, Sunbeam }
 export default function AuthScreen() {
   const { loginWithRedirect, isLoading } = useAuth0();
 
+  const handleLogin = async () => {
+    try {
+      await loginWithRedirect();
+    } catch (err) {
+      console.error('Auth0 loginWithRedirect error:', err);
+      alert('Login failed: ' + (err.message || 'Unknown error'));
+    }
+  };
+
   return (
     <div className="h-full flex flex-col items-center justify-center px-8 anim-fadein solarpunk-bg" style={{ position: 'relative', overflow: 'hidden' }}>
       <FloatingLeaves />
@@ -35,7 +44,7 @@ export default function AuthScreen() {
       {/* Auth0 Login Button */}
       <button
         className="eco-btn eco-btn-primary w-full max-w-xs font-display text-sm flex items-center justify-center gap-2"
-        onClick={() => loginWithRedirect()}
+        onClick={() => handleLogin()}
         disabled={isLoading}
         style={{ opacity: isLoading ? 0.6 : 1 }}
       >

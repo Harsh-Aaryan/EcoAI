@@ -19,7 +19,7 @@ const TABS = [
 ];
 
 export default function App() {
-  const { isAuthenticated, isLoading, user } = useAuth0();
+  const { isAuthenticated, isLoading, user, error } = useAuth0();
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
 
@@ -49,6 +49,35 @@ export default function App() {
             <span className="inline-block w-3.5 h-3.5 border-2 rounded-full" style={{ borderColor: 'var(--green)', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
             <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Connecting…</span>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Auth error ──
+  if (error) {
+    return (
+      <div className="phone-shell">
+        <div className="h-full flex flex-col items-center justify-center px-8 solarpunk-bg" style={{ position: 'relative', overflow: 'hidden' }}>
+          <div className="anim-breathe mb-3">
+            <CircuitLeafLogo size={64} />
+          </div>
+          <h1 className="font-display text-xl font-bold mb-2" style={{ color: 'var(--text)' }}>Login Error</h1>
+          <div className="eco-card grain p-4 mb-4 w-full max-w-xs" style={{ borderLeft: '3px solid #e74c3c' }}>
+            <p className="font-mono text-xs mb-1" style={{ color: '#e74c3c', fontWeight: 600 }}>{error.message || 'Unknown error'}</p>
+            {error.error_description && (
+              <p className="font-mono text-xs" style={{ color: 'var(--muted)' }}>{error.error_description}</p>
+            )}
+          </div>
+          <button
+            className="eco-btn eco-btn-primary w-full max-w-xs font-display text-sm"
+            onClick={() => window.location.replace(window.location.origin)}
+          >
+            Try Again
+          </button>
+          <p className="font-mono mt-4 text-center" style={{ color: 'var(--muted)', fontSize: 9, lineHeight: 1.4 }}>
+            If this persists, ensure your URL is added to<br/>Auth0 → Allowed Callback URLs &amp; Web Origins
+          </p>
         </div>
       </div>
     );

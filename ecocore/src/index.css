@@ -95,9 +95,9 @@ body {
   --house-brightness: 1;
 }
 [data-tod="dawn"]    { --sky-bg: linear-gradient(180deg, #f4a261 0%, #e9c46a 100%); --house-hue: -15deg; --house-brightness: 1.1; }
-[data-tod="day"]     { --sky-bg: linear-gradient(180deg, #a8d8ea 0%, #e8f4f8 100%); --house-hue: 0deg;   --house-brightness: 1;   }
-[data-tod="evening"] { --sky-bg: linear-gradient(180deg, #2d3561 0%, #c05c7e 50%, #f3826f 100%); --house-hue: 240deg; --house-brightness: 0.7; }
-[data-tod="night"]   { --sky-bg: linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 100%); --house-hue: 200deg; --house-brightness: 0.4; }
+[data-tod="day"]     { --sky-bg: linear-gradient(180deg, #60b8e0 0%, #a8d8ea 40%, #d4eef6 100%); --house-hue: 15deg; --house-brightness: 1.15; }
+[data-tod="evening"] { --sky-bg: linear-gradient(180deg, #2d3561 0%, #c05c7e 50%, #f3826f 100%); --house-hue: 330deg; --house-brightness: 0.75; }
+[data-tod="night"]   { --sky-bg: linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 100%); --house-hue: 210deg; --house-brightness: 0.4; }
 
 /* ── Background Gradient ── */
 .solarpunk-bg {
@@ -119,12 +119,14 @@ body {
 .house-scene__svg {
   position: absolute;
   left: 50%;
-  bottom: 2%;
+  bottom: 0;
   transform: translateX(-50%);
   height: 68%;
-  width: auto;
+  width: 100%;
+  min-width: 100%;
+  object-fit: cover;
   pointer-events: none;
-  filter: hue-rotate(var(--house-hue)) brightness(var(--house-brightness));
+  filter: hue-rotate(var(--house-hue)) brightness(var(--house-brightness)) saturate(1.25);
   transition: filter 1.5s ease;
   z-index: 0;
   opacity: 0.92;
@@ -481,37 +483,35 @@ select.eco-input option {
 
 /* ══ Sky-zone elements ══ */
 
-/* Sun — centred, soft glow pulse */
+/* Sun — arc-positioned, soft glow pulse */
 .sky-sun {
   position: absolute;
-  top: 2%;
-  left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   width: 54px;
   height: 54px;
   opacity: 0.92;
   filter: drop-shadow(0 0 10px rgba(245,200,66,0.45));
   animation: sky-sun-pulse 4s ease-in-out infinite;
   z-index: 2;
+  transition: left 60s linear, top 60s linear;
 }
 
 @keyframes sky-sun-pulse {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(245,200,66,0.40)); transform: translateX(-50%) scale(1); }
-  50%      { filter: drop-shadow(0 0 18px rgba(245,200,66,0.65)); transform: translateX(-50%) scale(1.06); }
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(245,200,66,0.40)); transform: translate(-50%,-50%) scale(1); }
+  50%      { filter: drop-shadow(0 0 18px rgba(245,200,66,0.65)); transform: translate(-50%,-50%) scale(1.06); }
 }
 
-/* Moon — centred, gentle glow */
+/* Moon — arc-positioned, gentle glow */
 .sky-moon {
   position: absolute;
-  top: 2%;
-  left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   width: 40px;
   height: 48px;
   opacity: 0.90;
   filter: drop-shadow(0 0 8px rgba(200,210,240,0.5));
   animation: sky-moon-glow 5s ease-in-out infinite;
   z-index: 2;
+  transition: left 60s linear, top 60s linear;
 }
 
 @keyframes sky-moon-glow {

@@ -17,8 +17,7 @@ export default function BatteryGauge({ level = 78, isCharging = true }) {
           strokeDasharray={`${filled} ${circumference - filled}`} strokeLinecap="round" transform={`rotate(135 ${center} ${center})`}
           style={{ transition: 'stroke-dasharray 1.2s ease-out', filter: 'drop-shadow(0 0 4px rgba(46,125,62,0.3))' }} />
         <text x={center} y={center - 2} textAnchor="middle" dominantBaseline="central" fill="var(--green)"
-          fontFamily="var(--font-mono)" fontSize="22" fontWeight="500"
-          className={isCharging ? 'anim-breathe' : ''} style={{ transformOrigin: `${center}px ${center}px` }}>
+          fontFamily="var(--font-mono)" fontSize="22" fontWeight="500">
           {level}%
         </text>
         <text x={center} y={center + 17} textAnchor="middle" fill="var(--muted)"
