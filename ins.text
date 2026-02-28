@@ -1,0 +1,140 @@
+Build EcoCore — a Smart City residential energy + AI compute PWA.
+
+AESTHETIC: Calm, hopeful, biophilic. The feeling of a sustainable 
+future that is already arriving. Inspired by forest light, morning 
+clarity, and Scandinavian environmental design. No neon. No glow. 
+Soft luminosity and organic warmth throughout.
+
+COLORS (CSS variables):
+--bg:         #0d1a12   (deep forest night)
+--surface:    #122218   (dark moss)
+--border:     #1e3a28   (shadowed fern)
+--green:      #4ade80   (spring green, primary)
+--green-soft: #86efac   (sage, secondary)
+--sun:        #fbbf24   (morning sunlight, warm accent)
+--sky:        #67e8f9   (clear water, cool accent)
+--text:       #e2f5e9   (pale leaf)
+--muted:      #5a7d65   (lichen)
+
+TYPOGRAPHY:
+- Fraunces (Google Fonts) — display/headers, weight 300–700
+  Organic, humanist serif. Feels grown not manufactured.
+- DM Mono — all numbers, data, prices, carbon values, timestamps
+
+TEXTURE:
+- SVG feTurbulence grain filter applied at 4% opacity over all cards
+  Creates recycled paper / uncoated stock warmth
+- No scanlines, no glitch, no hard edges
+
+ANIMATIONS:
+- Breathing pulse on live indicators: scale 1→1.04→1, 3s ease infinite
+- Water-rise fill on progress bars: width animates from 0 on mount
+- Leaf drift: single decorative SVG leaf floats slowly top→bottom 
+  on the home screen background, 20s linear infinite, 5% opacity
+- Page transitions: gentle fade + 6px translateY, 300ms ease
+- All animations feel slow, deliberate, calm
+
+TECH STACK:
+- React 18 PWA (Vite + vite-plugin-pwa)
+- Auth0 React SDK — universal login, JWT, user profile in MongoDB
+- MongoDB Atlas — collections: users, jobs, tasks, grid_snapshots, earnings
+- FastAPI (Python) — REST endpoints, auth middleware
+- Celery + Redis — AI job queue and scheduling
+- Leaflet.js + react-leaflet + OpenStreetMap tiles
+  Tile layer: CartoDB Positron (light, calm, earthy)
+  Home nodes: CircleMarker in spring green (#4ade80), 
+  breathing scale animation via CSS, popup shows battery/earnings/carbon
+  Map container: soft border, no harsh styling, 220px height
+- WattTime API — marginal carbon intensity by grid region
+- ERCOT / EIA API — live spot prices + 24h forecast
+- Open-Meteo API — solar irradiance forecast
+- Ollama + Groq — AI inference runtime
+- Recharts — sparklines and bar charts, no sharp colors, 
+  use --green and --sun for fills
+- Tailwind CSS utility classes
+- Web Push API — calm notification copy ("Your home earned $2.10 
+  during last night's clean window ☀️")
+
+TABS — 4 items in bottom nav:
+
+1. HOME
+   Header: "Good morning, Alex" in Fraunces italic
+   Battery gauge: soft SVG arc, spring green fill, breathing pulse 
+   on the percentage number when charging
+   Status banner: rounded pill, sage green background, leaf icon, 
+   calm copy ("Charging on 89% clean energy")
+   4 stat cards in 2×2 grid: earned today / CO₂ avoided / kWh shifted / 
+   AI jobs — warm, spacious, no clutter
+   Active AI job: card with water-rise progress bar, 
+   muted carbon footprint note below
+   24h chart: Recharts dual-line, price in --sun, carbon in --green, 
+   both soft strokes, shaded area under carbon line in --green at 10% opacity
+
+2. CITY
+   react-leaflet map, CartoDB Positron tiles, 220px, full width, 
+   soft rounded corners, border in --border
+   CircleMarker nodes pulse gently in --green (online) or --sun (discharging)
+   Popup: small card with home nickname, battery %, today's earnings
+   City aggregate row above map: homes online / MW reduced / CO₂ offset / 
+   grid stress — displayed as clean inline stats not a grid
+   Grid ticker below map: slow scroll, DM Mono, muted color
+   Combined single card below ticker:
+     Top half — DEMAND RESPONSE EVENTS
+       3 rows: upcoming event highlighted in --sun bg at 10%, 
+       completed rows muted, each row shows time + bonus earned
+     Hairline divider (1px --border)
+     Bottom half — YOUR IMPACT
+       2×2 compact grid: CO₂ avoided / peaker hours replaced / 
+       car-free days equivalent / kWh optimized
+       Values in Fraunces, labels in DM Mono muted
+     Entire card fits on screen alongside map + ticker, no scroll needed
+
+3. JOBS & TASKS
+   Sub-tab pill switcher: "AI Jobs" and "Tasks", 
+   active state is solid --green with dark text, inactive is ghost
+   
+   AI Jobs sub-tab:
+     Scheduler card: calm copy, next clean window countdown in DM Mono, 
+     small leaf icon
+     3 summary counts: Running / Queued / Done Today
+     Job list: each row has a soft colored left border instead of a dot,
+     type + power + carbon in muted mono below name
+     Running job shows water-rise progress bar
+     Schedule new job: expandable form, job type chips, 
+     priority selector, two toggles (clean energy / auto-pause), 
+     Queue Job button in --green
+
+   Tasks sub-tab:
+     Circular progress arc (SVG) with Fraunces percentage inside
+     Urgent banner if any urgent tasks (--sun tint, leaf-warn icon)
+     Checklist: tap to complete, smooth strikethrough + opacity fade, 
+     category tag + due date per row
+     Add task: inline input at bottom, soft border, + button in --green
+
+4. REVENUE
+   Balance hero: large Fraunces number, soft --green tint background, 
+   morning light feel. Withdraw button understated, outline style.
+   28-day bar chart: Recharts, --green bars with rounded tops, 
+   --sun accent for today's bar
+   Revenue breakdown: 3 rows with water-rise progress bars
+   Leaderboard card: warm --sun tint, calm rank copy
+
+SETTINGS (gear in top-right header, bottom sheet modal):
+   Auth0 profile, battery capacity slider, grid region selector, 
+   5 automation toggles (all interactive React state), 
+   tech stack reference in DM Mono
+
+ONBOARDING (post-Auth0, 3 steps):
+   Step indicators as soft dots not a bar
+   Step 1 — location picker (3 city buttons)
+   Step 2 — battery slider with live kWh label
+   Step 3 — welcome confirmation, city node count, 
+   Fraunces italic "Your home is now part of something bigger."
+
+COPY TONE throughout:
+   Warm, grounded, optimistic. Never urgent. Never gamified.
+   Examples:
+   - "Charging on clean energy" not "OPTIMAL CHARGING MODE"  
+   - "You avoided 8 kg of CO₂ today" not "8kg OFFSET 🔥"
+   - "Next clean window in 2 hours" not "STANDBY FOR CLEAN WINDOW"
+   - Withdraw button: "Move earnings to PayPal" not "CASH OUT"

@@ -1,0 +1,544 @@
+{
+  "project": {
+    "name": "EcoCore",
+    "type": "Progressive Web App",
+    "tagline": "Your home is now part of something bigger.",
+    "concept": "Smart City residential energy storage + AI compute scheduling network. Every home is an intelligent grid node. Calm, hopeful, biophilic design."
+  },
+
+  "aesthetic": {
+    "mood": "Biophilic tech. Forest light filtered through Scandinavian design. Morning clarity. Sustainable optimism.",
+    "references": ["Notion", "B-corp annual report", "terrarium", "forest canopy at dawn"],
+    "vibe_test": "If it could be a printed annual report for a B-corp reforestation company that also runs AI infrastructure — it passes.",
+    "avoid": ["neon", "glow effects", "scanlines", "glitch animations", "harsh edges", "gamification language", "urgency"]
+  },
+
+  "design_tokens": {
+    "colors": {
+      "bg": "#0d1a12",
+      "surface": "#122218",
+      "border": "#1e3a28",
+      "green": "#4ade80",
+      "green_soft": "#86efac",
+      "sun": "#fbbf24",
+      "sky": "#67e8f9",
+      "text": "#e2f5e9",
+      "muted": "#5a7d65"
+    },
+    "typography": {
+      "display": {
+        "family": "Fraunces",
+        "source": "Google Fonts",
+        "weights": ["300", "400", "700"],
+        "style": "Organic humanist serif. Feels grown, not manufactured.",
+        "usage": ["headers", "hero numbers", "balance figures", "onboarding copy"]
+      },
+      "mono": {
+        "family": "DM Mono",
+        "source": "Google Fonts",
+        "weights": ["400", "500"],
+        "usage": ["prices", "carbon values", "timestamps", "data labels", "ticker", "tech stack list"]
+      }
+    },
+    "texture": {
+      "type": "SVG feTurbulence grain filter",
+      "opacity": "4%",
+      "applied_to": "all card surfaces",
+      "feel": "recycled paper, uncoated stock"
+    },
+    "border_radius": {
+      "card": "16px",
+      "pill": "999px",
+      "input": "10px",
+      "chip": "8px"
+    },
+    "shadows": "none — use soft borders and background tints instead of shadows"
+  },
+
+  "animations": {
+    "breathing_pulse": {
+      "description": "Live status indicators and charging state",
+      "keyframes": "scale 1 → 1.04 → 1",
+      "duration": "3s",
+      "easing": "ease-in-out infinite"
+    },
+    "water_rise": {
+      "description": "Progress bar fills",
+      "keyframes": "width 0% → target%",
+      "duration": "1.2s",
+      "easing": "ease-out",
+      "trigger": "on mount"
+    },
+    "leaf_drift": {
+      "description": "Decorative background element on Home tab",
+      "keyframes": "translateY top → bottom, slight rotate",
+      "duration": "20s",
+      "easing": "linear infinite",
+      "opacity": "5%",
+      "element": "single SVG leaf path"
+    },
+    "page_transition": {
+      "keyframes": "opacity 0→1, translateY 6px→0",
+      "duration": "300ms",
+      "easing": "ease"
+    },
+    "principles": "All animations slow, deliberate, calm. Nothing strobes. Nothing demands attention."
+  },
+
+  "tech_stack": {
+    "frontend": {
+      "framework": "React 18",
+      "bundler": "Vite",
+      "pwa_plugin": "vite-plugin-pwa",
+      "styling": "Tailwind CSS (utility classes only, no compiler)",
+      "charts": "Recharts",
+      "maps": "Leaflet.js + react-leaflet",
+      "map_tiles": "CartoDB Positron (light, calm, earthy)"
+    },
+    "auth": {
+      "provider": "Auth0",
+      "sdk": "@auth0/auth0-react",
+      "flow": "Universal Login",
+      "tokens": "JWT"
+    },
+    "database": {
+      "provider": "MongoDB Atlas",
+      "collections": ["users", "jobs", "tasks", "grid_snapshots", "earnings"]
+    },
+    "backend": {
+      "framework": "FastAPI",
+      "language": "Python",
+      "job_queue": "Celery",
+      "broker": "Redis",
+      "middleware": "Auth JWT verification"
+    },
+    "external_apis": {
+      "carbon": {
+        "name": "WattTime API",
+        "purpose": "Real-time marginal carbon intensity by grid region",
+        "auth": "free account"
+      },
+      "grid_price": {
+        "name": "ERCOT / EIA API",
+        "purpose": "Live electricity spot prices + 24h forecast",
+        "auth": "EIA free API key"
+      },
+      "solar": {
+        "name": "Open-Meteo API",
+        "purpose": "Solar irradiance forecast",
+        "auth": "none required"
+      }
+    },
+    "ai_runtime": {
+      "local": "Ollama",
+      "cloud": "Groq API",
+      "purpose": "AI inference workload execution"
+    },
+    "notifications": "Web Push API"
+  },
+
+  "copy_tone": {
+    "principles": ["Warm", "Grounded", "Optimistic", "Never urgent", "Never gamified"],
+    "examples": [
+      {
+        "do": "Charging on clean energy",
+        "dont": "OPTIMAL CHARGING MODE"
+      },
+      {
+        "do": "You avoided 8 kg of CO₂ today",
+        "dont": "8kg OFFSET 🔥"
+      },
+      {
+        "do": "Next clean window in 2 hours",
+        "dont": "STANDBY FOR CLEAN WINDOW"
+      },
+      {
+        "do": "Move earnings to PayPal",
+        "dont": "CASH OUT"
+      },
+      {
+        "do": "Your home is now part of something bigger.",
+        "dont": "YOU'VE JOINED THE NETWORK"
+      }
+    ]
+  },
+
+  "screens": {
+    "auth": {
+      "layout": "Full screen, centered, vertical stack",
+      "background": "Radial gradient from --green at 5% opacity fading to --bg",
+      "elements": [
+        {
+          "type": "logo",
+          "description": "House + circuit leaf SVG mark, 72px, surface card background, --border border"
+        },
+        {
+          "type": "wordmark",
+          "description": "EcoCore in Fraunces 700, 32px"
+        },
+        {
+          "type": "tagline",
+          "description": "Smart City Energy Network, DM Mono, muted color"
+        },
+        {
+          "type": "feature_list",
+          "items": [
+            "Real-time grid optimization",
+            "Carbon-aware AI scheduling",
+            "Earn from your home battery"
+          ],
+          "style": "3 rows, each with small SVG icon (leaf, chip, sun), surface card background"
+        },
+        {
+          "type": "cta_button",
+          "label": "Connect Your Home",
+          "style": "--green background, dark text, Fraunces, full width, 16px padding, triggers Auth0"
+        },
+        {
+          "type": "footnote",
+          "text": "Secured by Auth0 · Data stored in MongoDB",
+          "style": "DM Mono, 11px, muted"
+        }
+      ]
+    },
+
+    "onboarding": {
+      "steps": 3,
+      "step_indicators": "Soft dot row, filled dot = completed, outline = upcoming",
+      "steps_detail": [
+        {
+          "step": 1,
+          "title": "Your Location",
+          "subtitle": "We'll connect you to your local grid",
+          "input": "3 city buttons: Austin TX / San Francisco CA / Chicago IL",
+          "action": "Tap to select, auto-advance to step 2"
+        },
+        {
+          "step": 2,
+          "title": "Your Battery",
+          "subtitle": "Tell us about your home storage",
+          "input": "Range slider 5–40 kWh, live DM Mono label below (e.g. 13.5 kWh), detected model name beneath",
+          "action": "Continue button"
+        },
+        {
+          "step": 3,
+          "title": "All Set",
+          "subtitle": "Your home is now part of something bigger.",
+          "subtitle_style": "Fraunces italic",
+          "input": "Network join count (e.g. 'You've joined 1,247 homes in the Austin grid')",
+          "action": "Enter Dashboard button"
+        }
+      ]
+    },
+
+    "tabs": {
+      "home": {
+        "label": "Home",
+        "icon": "house SVG",
+        "header": "Good morning, Alex — Fraunces italic",
+        "sections": [
+          {
+            "name": "Status Banner",
+            "type": "pill",
+            "style": "--green-soft background at 15%, leaf icon, --green text",
+            "example_copy": "Charging on 89% clean energy"
+          },
+          {
+            "name": "Battery Gauge",
+            "type": "SVG arc",
+            "style": "--green fill, breathing pulse animation on percentage when charging, DM Mono percentage, Fraunces BATTERY label"
+          },
+          {
+            "name": "Live Stats Row",
+            "type": "3 inline values",
+            "values": ["Grid Price (--sun color)", "Carbon Score (--green)", "Solar Output (--sky)"]
+          },
+          {
+            "name": "4 Stat Cards",
+            "type": "2x2 grid",
+            "cards": [
+              {"icon": "sun SVG", "label": "Earned Today", "color": "--sun"},
+              {"icon": "leaf SVG", "label": "CO₂ Avoided", "color": "--green"},
+              {"icon": "bolt SVG", "label": "kWh Shifted", "color": "--sky"},
+              {"icon": "chip SVG", "label": "AI Jobs Run", "color": "--green-soft"}
+            ]
+          },
+          {
+            "name": "Active AI Job",
+            "type": "card",
+            "style": "--sky tint border",
+            "elements": ["job name", "started time ago", "power draw in DM Mono", "water-rise progress bar", "carbon cost note in muted text"]
+          },
+          {
+            "name": "24h Grid Forecast Chart",
+            "type": "Recharts dual-line",
+            "lines": [
+              {"data": "electricity price", "color": "--sun", "stroke_width": 1.5},
+              {"data": "carbon intensity", "color": "--green", "stroke_width": 1.5, "area_fill": "--green at 10% opacity"}
+            ],
+            "now_line": "vertical 1px --border line at current hour",
+            "x_axis": "12a / 6a / 12p / 6p / 12a in DM Mono muted"
+          }
+        ]
+      },
+
+      "city": {
+        "label": "City",
+        "icon": "buildings SVG",
+        "sections": [
+          {
+            "name": "City Aggregate Bar",
+            "type": "inline stats row",
+            "values": ["Homes Online", "MW Reduced", "CO₂ Offset Today", "Grid Stress tag"]
+          },
+          {
+            "name": "Map",
+            "type": "react-leaflet",
+            "tile_layer": "CartoDB Positron",
+            "height": "220px",
+            "border": "1px solid --border, 16px border-radius",
+            "markers": {
+              "online_home": "CircleMarker, --green fill, breathing CSS animation",
+              "discharging_home": "CircleMarker, --sun fill",
+              "popup": "small card: home nickname, battery %, earnings today, carbon score"
+            }
+          },
+          {
+            "name": "Grid Ticker",
+            "type": "scrolling marquee",
+            "style": "DM Mono 11px, --muted color, slow CSS translateX animation",
+            "content": "ERCOT price · CAISO price · PJM price · Grid Carbon % · Network Earnings Today"
+          },
+          {
+            "name": "Demand Response + Impact Card",
+            "type": "single combined card",
+            "fits_on_screen": true,
+            "layout": "two stacked sections with hairline divider",
+            "top_section": {
+              "title": "Demand Response Events",
+              "rows": [
+                {"time": "Today 6–8 PM", "status": "Upcoming", "bonus": "$0.45/kWh bonus", "style": "--sun background at 10%"},
+                {"time": "Yesterday 5–7 PM", "status": "Completed", "bonus": "+$2.10 earned"},
+                {"time": "Mar 2, 4–6 PM", "status": "Completed", "bonus": "+$1.80 earned"}
+              ]
+            },
+            "divider": "1px solid --border",
+            "bottom_section": {
+              "title": "Your Impact",
+              "layout": "2x2 compact grid",
+              "cells": [
+                {"value": "42 kg", "label": "CO₂ Avoided", "value_font": "Fraunces"},
+                {"value": "8.3 hrs", "label": "Peaker Replaced", "value_font": "Fraunces"},
+                {"value": "4 days", "label": "Car-free Equiv.", "value_font": "Fraunces"},
+                {"value": "312 kWh", "label": "kWh Optimized", "value_font": "Fraunces"}
+              ]
+            }
+          }
+        ]
+      },
+
+      "jobs_and_tasks": {
+        "label": "Jobs & Tasks",
+        "icon": "combined compute + checklist SVG",
+        "sub_tab_switcher": {
+          "style": "pill container, 2 buttons",
+          "active_style": "solid --green background, dark text",
+          "inactive_style": "ghost, --muted text"
+        },
+        "ai_jobs_sub_tab": {
+          "sections": [
+            {
+              "name": "Scheduler Intelligence",
+              "type": "card",
+              "style": "--green tint border",
+              "content": "Next clean window countdown in DM Mono, small leaf icon, calm copy"
+            },
+            {
+              "name": "Summary Counts",
+              "type": "3-column row",
+              "values": [
+                {"label": "Running", "color": "--green"},
+                {"label": "Queued", "color": "--sun"},
+                {"label": "Done Today", "color": "--sky"}
+              ]
+            },
+            {
+              "name": "Job List",
+              "type": "stacked rows",
+              "row_style": "left border 3px in status color, no dot",
+              "row_elements": ["job name Fraunces", "type + power + carbon in DM Mono muted"],
+              "running_job": "shows water-rise progress bar below"
+            },
+            {
+              "name": "Schedule New Job",
+              "type": "expandable form",
+              "fields": [
+                {"name": "Job Type", "type": "chip selector", "options": ["Inference", "Embedding", "Vision"]},
+                {"name": "Priority", "type": "chip selector", "options": ["Low", "Normal", "High"]},
+                {"name": "Wait for clean energy", "type": "toggle"},
+                {"name": "Auto-pause if price > $0.20", "type": "toggle"}
+              ],
+              "submit": "Queue Job button, --green, full width"
+            }
+          ]
+        },
+        "tasks_sub_tab": {
+          "sections": [
+            {
+              "name": "Progress Arc",
+              "type": "SVG circle",
+              "center": "Fraunces percentage, --green color",
+              "label": "today's progress"
+            },
+            {
+              "name": "Urgent Banner",
+              "type": "conditional pill",
+              "shown_when": "any urgent + incomplete tasks",
+              "style": "--sun tint background, warn-leaf icon"
+            },
+            {
+              "name": "Task List",
+              "type": "interactive checklist",
+              "row_elements": ["checkbox SVG", "task name", "category tag", "due date in DM Mono"],
+              "tap_behavior": "smooth strikethrough + opacity fade to 50%",
+              "completed_style": "muted, struck through"
+            },
+            {
+              "name": "Add Task",
+              "type": "inline input row",
+              "style": "soft --border border, transparent background, + button in --green"
+            }
+          ]
+        }
+      },
+
+      "revenue": {
+        "label": "Revenue",
+        "icon": "leaf + currency SVG",
+        "sections": [
+          {
+            "name": "Balance Hero",
+            "type": "card",
+            "style": "--green tint background, soft, morning light feel",
+            "elements": [
+              {"type": "label", "text": "Total Balance", "font": "DM Mono muted"},
+              {"type": "number", "example": "$142.80", "font": "Fraunces 700 48px --green"},
+              {"type": "subtext", "example": "↑ $4.20 today · ↑ $31.40 this month", "font": "DM Mono muted"},
+              {"type": "button", "label": "Move earnings to PayPal", "style": "outline, --green border, understated"}
+            ]
+          },
+          {
+            "name": "28-Day Bar Chart",
+            "type": "Recharts BarChart",
+            "bar_color": "--green",
+            "today_bar_color": "--sun",
+            "bar_style": "rounded tops (radius 3px)",
+            "axes": "minimal, DM Mono muted"
+          },
+          {
+            "name": "Revenue Breakdown",
+            "type": "3 progress rows",
+            "rows": [
+              {"label": "Energy Arbitrage", "value": "$68.40", "pct": 48, "color": "--green"},
+              {"label": "AI Compute Revenue", "value": "$52.20", "pct": 37, "color": "--sky"},
+              {"label": "Demand Response", "value": "$22.20", "pct": 15, "color": "--sun"}
+            ],
+            "bar_animation": "water-rise on mount"
+          },
+          {
+            "name": "Leaderboard",
+            "type": "card",
+            "style": "--sun tint border",
+            "content": "Your regional rank, calm copy: 'You're among the top 18% of homes in your region this week'",
+            "progress_bar": "gradient --green to --sun"
+          }
+        ]
+      }
+    },
+
+    "settings": {
+      "trigger": "Gear icon in top-right header",
+      "presentation": "Bottom sheet modal, slides up",
+      "sections": [
+        {
+          "name": "Profile",
+          "content": "Auth0 avatar, display name, email, Auth0 Connected badge"
+        },
+        {
+          "name": "Home Configuration",
+          "fields": [
+            {"label": "Battery Capacity", "type": "range slider", "range": "5–40 kWh"},
+            {"label": "Solar Panels", "type": "text display"},
+            {"label": "Grid Region", "type": "select"},
+            {"label": "Inverter", "type": "text display"}
+          ]
+        },
+        {
+          "name": "Automation Rules",
+          "toggles": [
+            "Auto-discharge during price spikes",
+            "Only run AI jobs on clean energy",
+            "Reserve 20% battery for home use",
+            "Enable demand response events",
+            "Push notifications"
+          ],
+          "note": "All toggles interactive via React state"
+        },
+        {
+          "name": "Tech Stack",
+          "type": "reference list",
+          "font": "DM Mono",
+          "rows": [
+            {"layer": "Auth", "value": "Auth0 Universal Login"},
+            {"layer": "Database", "value": "MongoDB Atlas"},
+            {"layer": "Backend", "value": "FastAPI + Python"},
+            {"layer": "Queue", "value": "Celery + Redis"},
+            {"layer": "Grid Data", "value": "ERCOT API + WattTime"},
+            {"layer": "Solar", "value": "Open-Meteo API"},
+            {"layer": "AI Runtime", "value": "Ollama + Groq"},
+            {"layer": "Maps", "value": "Leaflet.js + OpenStreetMap"},
+            {"layer": "Frontend", "value": "React PWA + Vite"}
+          ]
+        }
+      ]
+    }
+  },
+
+  "pwa_config": {
+    "manifest": {
+      "name": "EcoCore",
+      "short_name": "EcoCore",
+      "theme_color": "#0d1a12",
+      "background_color": "#0d1a12",
+      "display": "standalone",
+      "orientation": "portrait"
+    },
+    "offline_behavior": "Show last-known battery state and cached earnings. Reconnected banner on restore.",
+    "install_prompt": "Appears after second visit. Custom banner: 'Add EcoCore to your home screen'",
+    "push_notifications": {
+      "examples": [
+        "Your home earned $2.10 during last night's clean window ☀️",
+        "Clean energy window starting in 30 minutes — 2 jobs queued",
+        "Grid price spike detected. Discharging your battery now."
+      ]
+    }
+  },
+
+  "mongodb_schema": {
+    "users": {
+      "fields": ["auth0_id", "display_name", "email", "location", "grid_region", "battery_config", "created_at"]
+    },
+    "jobs": {
+      "fields": ["user_id", "type", "status", "priority", "power_draw_kw", "carbon_cost_kg", "green_only", "auto_pause_threshold", "created_at", "started_at", "completed_at"]
+    },
+    "tasks": {
+      "fields": ["user_id", "name", "category", "due_date", "done", "urgent", "created_at"]
+    },
+    "grid_snapshots": {
+      "fields": ["region", "price_kwh", "carbon_intensity_pct", "grid_mix", "timestamp"]
+    },
+    "earnings": {
+      "fields": ["user_id", "date", "arbitrage_usd", "compute_usd", "demand_response_usd", "co2_avoided_kg", "kwh_shifted"]
+    }
+  }
+}
