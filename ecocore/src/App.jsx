@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import AuthScreen from './components/AuthScreen';
 import Onboarding from './components/Onboarding';
 import SettingsTab from './components/Settings';
@@ -6,7 +7,7 @@ import HomeTab from './tabs/HomeTab';
 import CityTab from './tabs/CityTab';
 import JobsTab from './tabs/JobsTab';
 import RevenueTab from './tabs/RevenueTab';
-import { HomeIcon, CityIcon, JobsIcon, RevenueIcon, SettingsIcon } from './components/Icons';
+import { HomeIcon, CityIcon, JobsIcon, RevenueIcon, SettingsIcon, CircuitLeafLogo } from './components/Icons';
 
 const TABS = [
   { key: 'home', label: 'Home', Icon: HomeIcon },
@@ -17,16 +18,52 @@ const TABS = [
 ];
 
 export default function App() {
-  const [screen, setScreen] = useState('auth');
+  const { isAuthenticated, isLoading, user } = useAuth0();
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
 
-  if (screen === 'auth') {
-    return <div className="phone-shell"><AuthScreen onLogin={() => setScreen('onboarding')} /></div>;
-  }
-  if (screen === 'onboarding') {
-    return <div className="phone-shell"><Onboarding onComplete={() => setScreen('dashboard')} /></div>;
+  // Check if first-time user after auth resolves
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const done = localStorage.getItem(`ecocore_onboarded_${user.sub}`);
+      if (!done) setNeedsOnboarding(true);
+    }
+  }, [isAuthenticated, user]);
+
+  const completeOnboarding = () => {
+    if (user) localStorage.setItem(`ecocore_onboarded_${user.sub}`, 'true');
+    setNeedsOnboarding(false);
+  };
+
+  // ── Loading splash ──
+  if (isLoading) {
+    return (
+      <div className="phone-shell">
+        <div className="h-full flex flex-col items-center justify-center solarpunk-bg" style={{ position: 'relative', overflow: 'hidden' }}>
+          <div className="anim-breathe mb-3">
+            <CircuitLeafLogo size={64} />
+          </div>
+          <h1 className="font-display text-xl font-light mb-2" style={{ color: 'var(--text)' }}>EcoCore</h1>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-3.5 h-3.5 border-2 rounded-full" style={{ borderColor: 'var(--green)', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
+            <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Connecting…</span>
+          </div>
+        </div>
+      </div>
+    );
   }
 
+  // ── Not logged in → Auth screen ──
+  if (!isAuthenticated) {
+    return <div className="phone-shell"><AuthScreen /></div>;
+  }
+
+  // ── First-time user → Onboarding ──
+  if (needsOnboarding) {
+    return <div className="phone-shell"><Onboarding onComplete={completeOnboarding} /></div>;
+  }
+
+  // ── Dashboard ──
   const renderTab = () => {
     switch (activeTab) {
       case 'home': return <HomeTab key="home" />;
@@ -47,6 +84,9 @@ export default function App() {
           EcoCore
         </div>
         <div className="flex-1" />
+        {user?.picture && (
+          <img src={user.picture} alt="" className="w-5 h-5 rounded-full mr-2" style={{ border: '1.5px solid var(--green)', objectFit: 'cover' }} />
+        )}
         <div className="eco-pill" style={{ background: 'rgba(46,125,62,0.08)', color: 'var(--green)', padding: '2px 8px', fontSize: 9 }}>
           ● Online
         </div>

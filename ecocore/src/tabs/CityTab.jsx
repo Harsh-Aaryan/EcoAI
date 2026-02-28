@@ -1,16 +1,32 @@
 import React from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cityNodes, cityStats, demandEvents, impactStats, tickerItems } from '../data/mock';
+import useLocation from '../hooks/useLocation';
+
+/* Small helper: fly to new center when location resolves */
+function FlyTo({ center }) {
+  const map = useMap();
+  React.useEffect(() => { map.flyTo(center, map.getZoom(), { duration: 1.2 }); }, [center, map]);
+  return null;
+}
 
 export default function CityTab() {
+  const { center, source, loading } = useLocation();
+
   return (
     <div className="tab-page">
       {/* Header + aggregate stats inline */}
       <div className="flex items-center justify-between mb-2 flex-shrink-0">
         <h2 className="font-display text-base font-light">City Grid</h2>
-        <div className="eco-pill" style={{ background: cityStats.gridStress === 'Low' ? 'rgba(46,125,62,0.1)' : 'rgba(201,139,26,0.12)', color: cityStats.gridStress === 'Low' ? 'var(--green)' : 'var(--sun)', padding: '3px 10px' }}>
-          Stress: {cityStats.gridStress}
+        <div className="flex items-center gap-1.5">
+          {/* Location indicator */}
+          <div className="eco-pill" style={{ background: 'rgba(46,139,150,0.1)', color: 'var(--sky)', padding: '2px 7px', fontSize: 8 }}>
+            {loading ? '◌ locating…' : source === 'gps' ? '◉ GPS' : source === 'zipcode' ? '⌖ Zip' : '◎ Default'}
+          </div>
+          <div className="eco-pill" style={{ background: cityStats.gridStress === 'Low' ? 'rgba(46,125,62,0.1)' : 'rgba(201,139,26,0.12)', color: cityStats.gridStress === 'Low' ? 'var(--green)' : 'var(--sun)', padding: '3px 10px' }}>
+            Stress: {cityStats.gridStress}
+          </div>
         </div>
       </div>
 
@@ -30,8 +46,19 @@ export default function CityTab() {
 
       {/* Map */}
       <div className="flex-shrink-0 mb-1" style={{ height: 175, borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-        <MapContainer center={[30.267, -97.743]} zoom={14} style={{ height: '100%', width: '100%' }} zoomControl={false} attributionControl={false}>
+        <MapContainer center={center} zoom={14} style={{ height: '100%', width: '100%' }} zoomControl={false} attributionControl={false}>
           <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+          <FlyTo center={center} />
+          {/* User location marker */}
+          <CircleMarker center={center} radius={8}
+            pathOptions={{ fillColor: '#2e8b96', fillOpacity: 0.6, color: '#2e8b96', weight: 2 }}>
+            <Popup>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text)' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 13, marginBottom: 3 }}>📍 Your Location</div>
+                <div>{center[0].toFixed(3)}, {center[1].toFixed(3)}</div>
+              </div>
+            </Popup>
+          </CircleMarker>
           {cityNodes.map(n => (
             <CircleMarker key={n.id} center={[n.lat, n.lng]} radius={7}
               pathOptions={{ fillColor: n.status === 'online' ? '#2e7d3e' : '#c98b1a', fillOpacity: 0.8, color: n.status === 'online' ? '#2e7d3e' : '#c98b1a', weight: 1.5 }}>

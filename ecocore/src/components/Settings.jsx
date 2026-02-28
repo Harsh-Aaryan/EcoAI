@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import { userData, settingsToggles } from '../data/mock';
+import useLocation from '../hooks/useLocation';
 
 export default function SettingsTab() {
+  const { user, logout } = useAuth0();
+  const { source, setZipcode, center } = useLocation();
   const [battery, setBattery] = useState(userData.batteryCapacity);
   const [toggles, setToggles] = useState(settingsToggles.map(() => true));
   const [region, setRegion] = useState(userData.gridRegion);
+  const [zipInput, setZipInput] = useState(localStorage.getItem('ecocore_user_zip') || '');
 
   const handleToggle = (i) => {
     const next = [...toggles];
@@ -12,25 +17,70 @@ export default function SettingsTab() {
     setToggles(next);
   };
 
+  const handleZipSubmit = () => {
+    if (zipInput.trim().length === 5) {
+      setZipcode(zipInput.trim());
+    } else if (!zipInput.trim()) {
+      setZipcode(null); // clear override
+    }
+  };
+
   return (
     <div className="tab-page">
       <h2 className="font-display text-base font-light mb-2 flex-shrink-0">Settings</h2>
 
-      {/* Profile */}
+      {/* Profile — from Auth0 */}
       <div className="eco-card grain mb-2 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center font-display text-base"
-            style={{ background: 'var(--green)', color: 'white', boxShadow: '0 2px 8px rgba(46,125,62,0.25)' }}>
-            {userData.name[0]}
-          </div>
+          {user?.picture ? (
+            <img src={user.picture} alt="" className="w-9 h-9 rounded-full" style={{ border: '2px solid var(--green)', objectFit: 'cover' }} />
+          ) : (
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-display text-base"
+              style={{ background: 'var(--green)', color: 'white', boxShadow: '0 2px 8px rgba(46,125,62,0.25)' }}>
+              {(user?.name || 'U')[0]}
+            </div>
+          )}
           <div className="flex-1">
-            <div className="font-display text-sm">{userData.name}</div>
-            <div className="font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>{userData.email}</div>
+            <div className="font-display text-sm">{user?.name || 'User'}</div>
+            <div className="font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>{user?.email || ''}</div>
           </div>
-          <div className="eco-pill" style={{ background: 'rgba(46,125,62,0.08)', color: 'var(--green)', padding: '2px 8px', fontSize: 9 }}>
-            Connected
-          </div>
+          <button className="eco-pill" onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+            style={{ background: 'rgba(180,60,60,0.08)', color: '#b43c3c', padding: '3px 10px', fontSize: 9, cursor: 'pointer', border: 'none' }}>
+            Sign Out
+          </button>
         </div>
+      </div>
+
+      {/* Location / Zipcode */}
+      <div className="eco-card grain mb-2 flex-shrink-0">
+        <div className="font-display text-xs mb-1.5">Location</div>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="eco-pill" style={{ background: 'rgba(46,139,150,0.1)', color: 'var(--sky)', padding: '2px 8px', fontSize: 9 }}>
+            {source === 'gps' ? '◉ GPS' : source === 'zipcode' ? '⌖ Zipcode' : source === 'gps-cached' ? '◉ GPS (cached)' : '◎ Default'}
+          </div>
+          <span className="font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>
+            {center[0].toFixed(2)}, {center[1].toFixed(2)}
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <input className="eco-input flex-1"
+            placeholder="Override: ZIP code (e.g. 78701)"
+            value={zipInput}
+            onChange={e => setZipInput(e.target.value.replace(/\D/g, '').slice(0, 5))}
+            onKeyDown={e => e.key === 'Enter' && handleZipSubmit()}
+            style={{ padding: '5px 10px', fontSize: 11 }}
+          />
+          <button className="eco-btn eco-btn-primary" onClick={handleZipSubmit}
+            style={{ padding: '5px 12px', fontSize: 11, borderRadius: 'var(--radius-input)' }}>
+            Set
+          </button>
+        </div>
+        {zipInput === '' && source === 'zipcode' && (
+          <button className="font-mono mt-1" style={{ fontSize: 10, color: 'var(--sky)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+            onClick={() => { setZipInput(''); setZipcode(null); }}>
+            Clear override, use GPS
+          </button>
+        )}
       </div>
 
       {/* Home Configuration */}
