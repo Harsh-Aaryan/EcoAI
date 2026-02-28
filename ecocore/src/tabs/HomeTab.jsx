@@ -118,7 +118,7 @@ export default function HomeTab() {
         {/* Row 2: 3 stat chips — compact, high contrast */}
         <div className="flex gap-2" style={{ marginBottom: 6 }}>
           {[
-            { icon: <SunIcon size={11} />, label: 'Price', value: `$${homeStats.gridPrice.toFixed(3)}`, color: '#f5c842' },
+            { icon: <SunIcon size={11} />, label: 'Price', value: `$${(homeStats.gridPrice ?? 0).toFixed(3)}`, color: '#f5c842' },
             { icon: <LeafIcon size={11} />, label: 'Carbon', value: `${homeStats.carbonScore}%`, color: '#6aff8d' },
             { icon: <BoltIcon size={11} />, label: 'Solar', value: `${solarOutput} kW`, color: '#7dd8ff' },
           ].map((s, i) => (
@@ -158,7 +158,7 @@ export default function HomeTab() {
           </div>
           <div className="flex justify-between items-center">
             <span className="font-mono" style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)' }}>
-              {activeJob.powerDraw} kW · {activeJob.carbonCost} kg CO₂ · {homeStats.gridPrice.toFixed(3)} $/kWh
+              {activeJob.powerDraw} kW · {activeJob.carbonCost} kg CO₂ · {(homeStats.gridPrice ?? 0).toFixed(3)} $/kWh
             </span>
             <div className="flex gap-1">
               {aiDensity.slice(0, 3).map((item) => (
@@ -231,7 +231,7 @@ export default function HomeTab() {
         {/* 4 stat chips — frosted, translucent */}
         <div className="grid grid-cols-4 gap-2" style={{ marginBottom: 8 }}>
           {[
-            { icon: <SunIcon size={11} />, label: 'Earned', value: `$${homeStats.earnedToday.toFixed(2)}`, color: '#f5c842' },
+            { icon: <SunIcon size={11} />, label: 'Earned', value: `$${(homeStats.earnedToday ?? 0).toFixed(2)}`, color: '#f5c842' },
             { icon: <LeafIcon size={11} />, label: 'CO₂', value: `${homeStats.co2Avoided}kg`, color: '#6aff8d' },
             { icon: <BoltIcon size={11} />, label: 'kWh', value: homeStats.kwhShifted, color: '#7dd8ff' },
             { icon: <ChipIcon size={11} />, label: 'AI Jobs', value: homeStats.aiJobsRun, color: '#a8e6a3' },
@@ -267,8 +267,8 @@ export default function HomeTab() {
               </span>
             )}
           </div>
-          <div style={{ height: 80 }}>
-            <ResponsiveContainer width="100%" height="100%">
+          <div style={{ height: 80, minWidth: 0 }}>
+            <ResponsiveContainer width="100%" height={80} minWidth={0}>
               <ComposedChart data={chartData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
                 <defs>
                   <linearGradient id="carbonG" x1="0" y1="0" x2="0" y2="1">

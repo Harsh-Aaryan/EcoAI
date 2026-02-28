@@ -37,7 +37,7 @@ export default function RevenueTab() {
         boxShadow: 'var(--shadow-card)',
       }}>
         <div className="font-display text-xs mb-1">28-Day Earnings</div>
-        <ResponsiveContainer width="100%" height={100}>
+        <ResponsiveContainer width="100%" height={100} minWidth={0}>
           <BarChart data={revenueChart} margin={{ top: 0, right: 0, left: -24, bottom: 0 }}>
             <XAxis dataKey="day" tick={{ fill: '#7d8c72', fontSize: 8, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false} interval={6} />
             <YAxis hide />

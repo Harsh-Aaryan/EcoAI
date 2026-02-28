@@ -51,6 +51,8 @@ MOCK_HOME = {
     'solarOutput': 3.4,
     'co2Avoided': 14.8,
     'kwhShifted': 126.2,
+    'earnedToday': 4.20,
+    'aiJobsRun': 3,
 }
 
 MOCK_CITY = {
