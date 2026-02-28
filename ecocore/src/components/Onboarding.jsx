@@ -1,16 +1,64 @@
 import React, { useState } from 'react';
 import { FloatingLeaves } from './Icons';
 
-const cities = [
-  { label: 'Austin, TX', region: 'ERCOT' },
-  { label: 'San Francisco, CA', region: 'CAISO' },
-  { label: 'Chicago, IL', region: 'PJM' },
-];
-
 export default function Onboarding({ onComplete }) {
   const [step, setStep] = useState(0);
-  const [city, setCity] = useState(null);
-  const [battery, setBattery] = useState(13.5);
+  const [locationLabel, setLocationLabel] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState('');
+  const [hasSolar, setHasSolar] = useState(null);
+  const [connectedToGrid, setConnectedToGrid] = useState(null);
+
+  const handleUseLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Location not supported. Use ZIP code instead.');
+      return;
+    }
+
+    setLocating(true);
+    setLocationError('');
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const label = `GPS (${coords.latitude.toFixed(3)}, ${coords.longitude.toFixed(3)})`;
+        setLocationLabel(label);
+        localStorage.removeItem('ecocore_user_zip');
+        localStorage.setItem('ecocore_user_location', JSON.stringify({ lat: coords.latitude, lng: coords.longitude }));
+        setLocating(false);
+        setTimeout(() => setStep(1), 300);
+      },
+      () => {
+        setLocating(false);
+        setLocationError('Could not get location. Try ZIP code.');
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+    );
+  };
+
+  const handleZipContinue = () => {
+    if (zipCode.length !== 5) {
+      setLocationError('Enter a valid 5-digit ZIP code.');
+      return;
+    }
+    setLocationError('');
+    setLocationLabel(`ZIP ${zipCode}`);
+    localStorage.setItem('ecocore_user_zip', zipCode);
+    setStep(1);
+  };
+
+  const completeSetup = () => {
+    localStorage.setItem(
+      'ecocore_onboarding_profile',
+      JSON.stringify({
+        location: locationLabel || 'Unknown',
+        zipCode: zipCode || null,
+        hasSolar,
+        connectedToGrid,
+      })
+    );
+    onComplete();
+  };
 
   return (
     <div className="h-full flex flex-col items-center justify-center px-8 anim-fadein solarpunk-bg" style={{ position: 'relative', overflow: 'hidden' }}>
@@ -31,35 +79,83 @@ export default function Onboarding({ onComplete }) {
       {step === 0 && (
         <div className="w-full max-w-xs text-center anim-fadein">
           <h2 className="font-display text-xl font-light mb-0.5">Your Location</h2>
-          <p className="font-mono text-xs mb-5" style={{ color: 'var(--muted)' }}>We'll connect you to your local grid</p>
-          <div className="space-y-2">
-            {cities.map(c => (
-              <button key={c.label} className="w-full eco-card grain text-center py-3 cursor-pointer transition-all"
-                style={{ borderColor: city === c.label ? 'var(--green)' : 'var(--border)', background: city === c.label ? 'rgba(46,125,62,0.06)' : 'var(--surface)',
-                  boxShadow: city === c.label ? 'var(--shadow-glow)' : 'var(--shadow-card)' }}
-                onClick={() => { setCity(c.label); setTimeout(() => setStep(1), 400); }}>
-                <span className="font-display text-sm">{c.label}</span>
+          <p className="font-mono text-xs mb-4" style={{ color: 'var(--muted)' }}>Use current location or enter ZIP code</p>
+
+          <button className="eco-btn eco-btn-primary w-full mb-2" onClick={handleUseLocation} disabled={locating}>
+            {locating ? 'Detecting location…' : 'Use My Current Location'}
+          </button>
+
+          <div className="eco-card grain p-3">
+            <div className="font-mono text-[11px] mb-1" style={{ color: 'var(--muted)' }}>or enter ZIP code</div>
+            <div className="flex gap-2">
+              <input
+                className="eco-input"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                placeholder="e.g. 78701"
+                style={{ padding: '7px 10px', fontSize: 12 }}
+              />
+              <button className="eco-btn eco-btn-outline" style={{ padding: '7px 12px', fontSize: 12 }} onClick={handleZipContinue}>
+                Continue
               </button>
-            ))}
+            </div>
           </div>
+
+          {!!locationError && (
+            <p className="font-mono text-[10px] mt-2" style={{ color: '#b43c3c' }}>{locationError}</p>
+          )}
         </div>
       )}
 
-      {/* Step 2: Battery */}
+      {/* Step 2: Home setup */}
       {step === 1 && (
         <div className="w-full max-w-xs text-center anim-fadein">
-          <h2 className="font-display text-xl font-light mb-0.5">Your Battery</h2>
-          <p className="font-mono text-xs mb-5" style={{ color: 'var(--muted)' }}>Tell us about your home storage</p>
-          <div className="eco-card grain mb-3 py-5">
-            <div className="font-mono text-3xl mb-3" style={{ color: 'var(--green)' }}>{battery} kWh</div>
-            <input type="range" min="5" max="40" step="0.5" value={battery} onChange={e => setBattery(parseFloat(e.target.value))} className="w-full px-4" />
-            <div className="flex justify-between px-4 mt-1.5">
-              <span className="font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>5 kWh</span>
-              <span className="font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>40 kWh</span>
+          <h2 className="font-display text-xl font-light mb-0.5">Home Setup</h2>
+          <p className="font-mono text-xs mb-4" style={{ color: 'var(--muted)' }}>This app works with or without solar</p>
+
+          <div className="eco-card grain mb-3 p-3 text-left">
+            <div className="font-mono text-[11px] mb-2" style={{ color: 'var(--muted)' }}>Do you have solar panels?</div>
+            <div className="flex gap-2">
+              <button
+                className={`eco-chip ${hasSolar === true ? 'active' : ''}`}
+                onClick={() => setHasSolar(true)}
+                style={{ flex: 1, textAlign: 'center' }}
+              >
+                Yes
+              </button>
+              <button
+                className={`eco-chip ${hasSolar === false ? 'active' : ''}`}
+                onClick={() => setHasSolar(false)}
+                style={{ flex: 1, textAlign: 'center' }}
+              >
+                No
+              </button>
             </div>
           </div>
-          <div className="font-mono text-xs mb-3" style={{ color: 'var(--muted)' }}>Detected: Tesla Powerwall 2</div>
-          <button className="eco-btn eco-btn-primary w-full" onClick={() => setStep(2)}>Continue</button>
+
+          <div className="eco-card grain mb-4 p-3 text-left">
+            <div className="font-mono text-[11px] mb-2" style={{ color: 'var(--muted)' }}>Are you connected to the city grid?</div>
+            <div className="flex gap-2">
+              <button
+                className={`eco-chip ${connectedToGrid === true ? 'active' : ''}`}
+                onClick={() => setConnectedToGrid(true)}
+                style={{ flex: 1, textAlign: 'center' }}
+              >
+                Yes
+              </button>
+              <button
+                className={`eco-chip ${connectedToGrid === false ? 'active' : ''}`}
+                onClick={() => setConnectedToGrid(false)}
+                style={{ flex: 1, textAlign: 'center' }}
+              >
+                No
+              </button>
+            </div>
+          </div>
+
+          <button className="eco-btn eco-btn-primary w-full" onClick={() => setStep(2)} disabled={hasSolar === null || connectedToGrid === null} style={{ opacity: hasSolar === null || connectedToGrid === null ? 0.55 : 1 }}>
+            Continue
+          </button>
         </div>
       )}
 
@@ -71,11 +167,11 @@ export default function Onboarding({ onComplete }) {
             Your home is now part of something bigger.
           </p>
           <div className="eco-card-glow grain py-4 mb-5">
-            <div className="font-mono text-xs" style={{ color: 'var(--muted)' }}>
-              You've joined <span style={{ color: 'var(--green)', fontWeight: 500 }}>1,247</span> homes in the {city || 'Austin, TX'} grid
-            </div>
+            <div className="font-mono text-xs mb-1" style={{ color: 'var(--muted)' }}>Location: <span style={{ color: 'var(--text)' }}>{locationLabel || 'Unknown'}</span></div>
+            <div className="font-mono text-xs mb-1" style={{ color: 'var(--muted)' }}>Solar: <span style={{ color: 'var(--text)' }}>{hasSolar ? 'Yes' : 'No'}</span></div>
+            <div className="font-mono text-xs" style={{ color: 'var(--muted)' }}>City Grid: <span style={{ color: 'var(--text)' }}>{connectedToGrid ? 'Connected' : 'Not connected'}</span></div>
           </div>
-          <button className="eco-btn eco-btn-primary w-full" onClick={onComplete}>Enter Dashboard</button>
+          <button className="eco-btn eco-btn-primary w-full" onClick={completeSetup}>Enter Dashboard</button>
         </div>
       )}
     </div>
