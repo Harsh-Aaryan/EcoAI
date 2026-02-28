@@ -307,11 +307,25 @@ body {
 /* ── Pill ── */
 .eco-pill {
   border-radius: var(--radius-pill);
-  padding: 5px 12px;
+  padding: 1px 6px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 2px;
+  font-size: 9px;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 600px) {
+  .eco-pill {
+    font-size: 8.5px;
+    padding: 1px 4px;
+    max-width: 110px;
+  }
+  .eco-card {
+    padding: 8px;
+  }
 }
 
 /* ── Button ── */
