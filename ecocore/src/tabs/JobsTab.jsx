@@ -2,23 +2,74 @@ import React, { useState } from 'react';
 import CircularProgress from '../components/CircularProgress';
 import { LeafIcon, PlusIcon, CheckIcon, WarnLeafIcon } from '../components/Icons';
 import { jobsList as initialJobs, tasksList as initialTasks } from '../data/mock';
+import useLocation from '../hooks/useLocation';
+import useWattTimeData from '../hooks/useWattTimeData';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /* ── AI Jobs ── */
 function AIJobsView() {
+  const { center } = useLocation();
+  const wt = useWattTimeData(center);
   const [showForm, setShowForm] = useState(false);
   const [jobType, setJobType] = useState('Inference');
   const [priority, setPriority] = useState('Normal');
   const [greenOnly, setGreenOnly] = useState(true);
   const [autoPause, setAutoPause] = useState(false);
   const [jobs, setJobs] = useState(initialJobs);
+  const [plannerNote, setPlannerNote] = useState('');
+  const [plannerBusy, setPlannerBusy] = useState(false);
 
   const running = jobs.filter(j => j.status === 'running').length;
   const queued = jobs.filter(j => j.status === 'queued').length;
   const done = jobs.filter(j => j.status === 'done').length;
   const statusColor = { running: 'var(--green)', queued: 'var(--sun)', done: 'var(--sky)' };
 
-  const handleQueue = () => {
-    setJobs([{ id: Date.now(), name: `${jobType} Job #${jobs.length + 1}`, type: jobType, power: '0.20 kW', carbon: '0.01 kg', status: 'queued', progress: 0 }, ...jobs]);
+  const handleQueue = async () => {
+    setPlannerBusy(true);
+    setPlannerNote('');
+
+    let plan = null;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/jobs/plan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobType,
+          priority,
+          greenOnly,
+          autoPause,
+          gridPrice: wt.homeStats?.gridPrice ?? null,
+          carbonScore: wt.homeStats?.carbonScore ?? null,
+          cleanEnergyPct: wt.homeStats?.cleanEnergyPct ?? null,
+        }),
+      });
+
+      if (response.ok) {
+        plan = await response.json();
+        setPlannerNote(`${plan.window} · ${plan.estimatedSavings} (${plan.source})`);
+      } else {
+        setPlannerNote('Planner unavailable, queued with default policy.');
+      }
+    } catch {
+      setPlannerNote('Planner offline, queued with default policy.');
+    }
+
+    setJobs([
+      {
+        id: Date.now(),
+        name: `${jobType} Job #${jobs.length + 1}`,
+        type: jobType,
+        power: '0.20 kW',
+        carbon: '0.01 kg',
+        status: 'queued',
+        progress: 0,
+        planWindow: plan?.window,
+      },
+      ...jobs,
+    ]);
+
+    setPlannerBusy(false);
     setShowForm(false);
   };
 
@@ -41,6 +92,12 @@ function AIJobsView() {
         ))}
       </div>
 
+      {plannerNote && (
+        <div className="eco-card mb-2 py-1.5 px-2" style={{ fontSize: 10 }}>
+          <span className="font-mono" style={{ color: 'var(--muted)' }}>Planner: {plannerNote}</span>
+        </div>
+      )}
+
       {/* Job list — scrollable area */}
       <div className="flex-1 min-h-0 overflow-y-auto mb-2" style={{ scrollbarWidth: 'none' }}>
         {jobs.map(job => (
@@ -49,6 +106,9 @@ function AIJobsView() {
               <div>
                 <span className="font-display" style={{ fontSize: 12 }}>{job.name}</span>
                 <div className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>{job.type} · {job.power} · {job.carbon}</div>
+                {job.planWindow && (
+                  <div className="font-mono" style={{ fontSize: 9, color: 'var(--green)' }}>Window: {job.planWindow}</div>
+                )}
               </div>
               <span className="font-mono" style={{ fontSize: 10, color: statusColor[job.status] }}>
                 {job.status === 'running' ? 'Running' : job.status === 'queued' ? 'Queued' : 'Done'}
@@ -89,7 +149,9 @@ function AIJobsView() {
               <span className="font-mono" style={{ fontSize: 11 }}>Auto-pause &gt; $0.20</span>
               <button className={`eco-toggle ${autoPause ? 'active' : ''}`} onClick={() => setAutoPause(!autoPause)} />
             </div>
-            <button className="eco-btn eco-btn-primary w-full" style={{ padding: '8px 16px', fontSize: 13 }} onClick={handleQueue}>Queue Job</button>
+            <button className="eco-btn eco-btn-primary w-full" style={{ padding: '8px 16px', fontSize: 13, opacity: plannerBusy ? 0.7 : 1 }} onClick={handleQueue} disabled={plannerBusy}>
+              {plannerBusy ? 'Planning…' : 'Queue Job'}
+            </button>
           </div>
         )}
       </div>

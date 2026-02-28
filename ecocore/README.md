@@ -1,16 +1,77 @@
-# React + Vite
+# EcoCore Hackathon Setup (Netlify + Render + Groq)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project uses:
+- Frontend: React + Vite (deploy on Netlify)
+- Backend: FastAPI in `backend/` (deploy on Render)
+- LLM: Groq API (server-side key)
+- Optional local fallback: Ollama
 
-Currently, two official plugins are available:
+## 1) Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Frontend
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+### Backend
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Backend health check:
+`http://localhost:8000/api/health`
 
-## Expanding the ESLint configuration
+## 2) Environment variables
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Use `.env` at project root (already gitignored):
+
+- `GROQ_API_KEY` (server only)
+- `GROQ_MODEL` (default: `llama-3.3-70b-versatile`)
+- `ALLOWED_ORIGINS` (comma-separated frontend origins)
+- `VITE_API_BASE_URL` (frontend backend URL)
+
+Important: never use `VITE_GROQ_API_KEY`; `VITE_` variables are exposed to browser.
+
+## 3) Deploy backend to Render (free)
+
+1. Push repo to GitHub.
+2. In Render, create a new Web Service from repo.
+3. Use `render.yaml` in project root, or configure manually:
+	- Root directory: `backend`
+	- Build command: `pip install -r requirements.txt`
+	- Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+4. Add environment variables in Render dashboard:
+	- `GROQ_API_KEY`
+	- `GROQ_MODEL`
+	- `ALLOWED_ORIGINS` (include Netlify URL)
+
+## 4) Deploy frontend to Netlify (free)
+
+1. Create Netlify site from your repo.
+2. Build settings:
+	- Base directory: `ecocore`
+	- Build command: `npm run build`
+	- Publish directory: `dist`
+3. Add Netlify env variable:
+	- `VITE_API_BASE_URL=https://<your-render-service>.onrender.com`
+4. Redeploy.
+
+## 5) Demo flow in Jobs tab
+
+When you click **Queue Job** in Jobs:
+- Frontend calls `POST /api/jobs/plan`
+- FastAPI calls Groq
+- UI displays a planner note with recommended window and estimated savings
+- If Groq is unavailable, backend returns a deterministic fallback plan
+
+## 6) Optional Ollama fallback
+
+You can keep local Ollama for offline judging/demo:
+- Keep hosted mode as default (Render+Groq)
+- Use local backend env for Ollama later if needed
+
