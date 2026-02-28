@@ -39,8 +39,8 @@ export default function SettingsTab() {
   };
 
   return (
-    <div className="tab-page frosted-page">
-      <h2 className="font-display text-base font-light mb-2 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>Settings</h2>
+    <div className="tab-page frosted-page" style={{ overflowY: 'auto', display: 'block' }}>
+      <h2 className="font-display text-base font-light mb-2" style={{ position: 'relative', zIndex: 1 }}>Settings</h2>
 
       {/* Profile — from Auth0 */}
       <div className="eco-card grain mb-2 flex-shrink-0">
