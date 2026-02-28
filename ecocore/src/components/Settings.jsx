@@ -212,13 +212,24 @@ export default function SettingsTab() {
       </div>
 
       {/* Automation Rules — fills remaining */}
-      <div className="eco-card grain flex-1 min-h-0 flex flex-col">
-        <div className="font-display text-xs mb-2">Automation Rules</div>
-        <div className="flex-1 flex flex-col justify-between">
+      <div className="eco-card grain flex flex-col items-stretch" style={{ marginTop: 16, padding: '16px 12px' }}>
+        <div className="font-display text-xs mb-1">Automation Rules</div>
+        <div className="flex flex-col" style={{gap: 10}}>
           {settingsToggles.map((label, i) => (
-            <div key={i} className="flex justify-between items-center py-1.5">
-              <span className="font-mono" style={{ fontSize: 11, color: 'var(--text)' }}>{label}</span>
-              <button className={`eco-toggle ${toggles[i] ? 'active' : ''}`} onClick={() => handleToggle(i)} />
+            <div key={i} className="flex flex-row items-center justify-between" style={{minHeight: 28}}>
+              <span style={{
+                fontSize: 13,
+                color: 'var(--text)',
+                lineHeight: 1.2,
+                background: 'none',
+                borderRadius: '12px',
+                padding: 0,
+                display: 'inline-block',
+                marginRight: 12,
+                boxShadow: 'none',
+                flex: 1
+              }}>{label}</span>
+              <button className={`eco-toggle ${toggles[i] ? 'active' : ''}`} onClick={() => handleToggle(i)} style={{transform: 'scale(0.8)', minWidth: 22, minHeight: 16, alignSelf: 'flex-end'}} />
             </div>
           ))}
         </div>
