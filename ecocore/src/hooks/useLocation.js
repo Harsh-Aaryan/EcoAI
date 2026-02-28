@@ -29,7 +29,7 @@ function getInitialLocation() {
         if (data && data.length > 0) {
           const lat = parseFloat(data[0].lat);
           const lon = parseFloat(data[0].lon);
-		  return { center: ([lat, lon]);, source: 'zipcode', needsGeo: false };
+		  return { center: ([lat, lon]), source: 'zipcode', needsGeo: false };
         } else {
           setError('Zip not found');
         }
