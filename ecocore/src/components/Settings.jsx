@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { userData, settingsToggles, techStack } from '../data/mock';
+import { userData, settingsToggles } from '../data/mock';
 
-export default function Settings({ onClose }) {
+export default function SettingsTab() {
   const [battery, setBattery] = useState(userData.batteryCapacity);
   const [toggles, setToggles] = useState(settingsToggles.map(() => true));
   const [region, setRegion] = useState(userData.gridRegion);
@@ -13,101 +13,70 @@ export default function Settings({ onClose }) {
   };
 
   return (
-    <>
-      <div className="sheet-overlay" onClick={onClose} />
-      <div className="sheet">
-        {/* Handle */}
-        <div className="flex justify-center mb-4">
-          <div className="w-10 h-1 rounded-full" style={{ background: 'var(--border)' }} />
-        </div>
+    <div className="tab-page">
+      <h2 className="font-display text-base font-light mb-2 flex-shrink-0">Settings</h2>
 
-        <h2 className="font-display text-lg font-light mb-5">Settings</h2>
-
-        {/* Profile */}
-        <div className="eco-card grain mb-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center font-display text-lg"
-              style={{ background: 'var(--green)', color: 'var(--bg)' }}
-            >
-              {userData.name[0]}
-            </div>
-            <div>
-              <div className="font-display text-sm">{userData.name}</div>
-              <div className="font-mono text-xs" style={{ color: 'var(--muted)' }}>{userData.email}</div>
-            </div>
+      {/* Profile */}
+      <div className="eco-card grain mb-2 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center font-display text-base"
+            style={{ background: 'var(--green)', color: 'white', boxShadow: '0 2px 8px rgba(46,125,62,0.25)' }}>
+            {userData.name[0]}
           </div>
-          <div className="eco-pill text-xs" style={{ background: 'rgba(74,222,128,0.1)', color: 'var(--green)', padding: '3px 10px' }}>
-            Auth0 Connected
+          <div className="flex-1">
+            <div className="font-display text-sm">{userData.name}</div>
+            <div className="font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>{userData.email}</div>
+          </div>
+          <div className="eco-pill" style={{ background: 'rgba(46,125,62,0.08)', color: 'var(--green)', padding: '2px 8px', fontSize: 9 }}>
+            Connected
           </div>
         </div>
+      </div>
 
-        {/* Home Configuration */}
-        <div className="eco-card grain mb-4">
-          <div className="font-display text-sm mb-3">Home Configuration</div>
+      {/* Home Configuration */}
+      <div className="eco-card grain mb-2 flex-shrink-0">
+        <div className="font-display text-xs mb-2">Home Configuration</div>
 
-          <div className="mb-3">
-            <div className="flex justify-between mb-1">
-              <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Battery Capacity</span>
-              <span className="font-mono text-xs" style={{ color: 'var(--green)' }}>{battery} kWh</span>
-            </div>
-            <input
-              type="range"
-              min="5"
-              max="40"
-              step="0.5"
-              value={battery}
-              onChange={e => setBattery(parseFloat(e.target.value))}
-            />
+        <div className="mb-2">
+          <div className="flex justify-between mb-0.5">
+            <span className="font-mono" style={{ fontSize: 11, color: 'var(--muted)' }}>Battery Capacity</span>
+            <span className="font-mono" style={{ fontSize: 11, color: 'var(--green)' }}>{battery} kWh</span>
           </div>
-
-          <div className="flex justify-between items-center mb-3">
-            <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Solar Panels</span>
-            <span className="font-mono text-xs">{userData.solarPanels}</span>
-          </div>
-
-          <div className="mb-3">
-            <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Grid Region</span>
-            <select
-              className="eco-input mt-1"
-              value={region}
-              onChange={e => setRegion(e.target.value)}
-              style={{ background: 'var(--surface)' }}
-            >
-              <option value="ERCOT">ERCOT (Texas)</option>
-              <option value="CAISO">CAISO (California)</option>
-              <option value="PJM">PJM (Mid-Atlantic)</option>
-            </select>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Inverter</span>
-            <span className="font-mono text-xs">{userData.inverter}</span>
-          </div>
+          <input type="range" min="5" max="40" step="0.5" value={battery} onChange={e => setBattery(parseFloat(e.target.value))} />
         </div>
 
-        {/* Automation Rules */}
-        <div className="eco-card grain mb-4">
-          <div className="font-display text-sm mb-3">Automation Rules</div>
+        <div className="flex justify-between items-center mb-2">
+          <span className="font-mono" style={{ fontSize: 11, color: 'var(--muted)' }}>Solar Panels</span>
+          <span className="font-mono" style={{ fontSize: 11 }}>{userData.solarPanels}</span>
+        </div>
+
+        <div className="mb-2">
+          <span className="font-mono" style={{ fontSize: 11, color: 'var(--muted)' }}>Grid Region</span>
+          <select className="eco-input mt-1" value={region} onChange={e => setRegion(e.target.value)} style={{ padding: '6px 10px', fontSize: 12 }}>
+            <option value="ERCOT">ERCOT (Texas)</option>
+            <option value="CAISO">CAISO (California)</option>
+            <option value="PJM">PJM (Mid-Atlantic)</option>
+          </select>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="font-mono" style={{ fontSize: 11, color: 'var(--muted)' }}>Inverter</span>
+          <span className="font-mono" style={{ fontSize: 11 }}>{userData.inverter}</span>
+        </div>
+      </div>
+
+      {/* Automation Rules — fills remaining */}
+      <div className="eco-card grain flex-1 min-h-0 flex flex-col">
+        <div className="font-display text-xs mb-2">Automation Rules</div>
+        <div className="flex-1 flex flex-col justify-between">
           {settingsToggles.map((label, i) => (
-            <div key={i} className="flex justify-between items-center mb-3 last:mb-0">
-              <span className="font-mono text-xs" style={{ color: 'var(--text)' }}>{label}</span>
+            <div key={i} className="flex justify-between items-center py-1.5">
+              <span className="font-mono" style={{ fontSize: 11, color: 'var(--text)' }}>{label}</span>
               <button className={`eco-toggle ${toggles[i] ? 'active' : ''}`} onClick={() => handleToggle(i)} />
             </div>
           ))}
         </div>
-
-        {/* Tech Stack */}
-        <div className="eco-card grain mb-4">
-          <div className="font-display text-sm mb-3">Tech Stack</div>
-          {techStack.map((row, i) => (
-            <div key={i} className="flex justify-between items-center py-1.5 border-b last:border-b-0" style={{ borderColor: 'var(--border)' }}>
-              <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>{row.layer}</span>
-              <span className="font-mono text-xs">{row.value}</span>
-            </div>
-          ))}
-        </div>
       </div>
-    </>
+    </div>
   );
 }

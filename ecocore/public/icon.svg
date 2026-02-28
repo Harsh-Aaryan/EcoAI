@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#f4efdf"/>
+  <g transform="translate(256,256)">
+    <!-- Leaf shape -->
+    <path d="M0,-160 C80,-140 160,-60 160,40 C160,100 120,160 40,180 C20,185 0,186 0,186 C0,186 -20,185 -40,180 C-120,160 -160,100 -160,40 C-160,-60 -80,-140 0,-160Z" fill="#2e7d3e" opacity="0.9"/>
+    <!-- Leaf vein -->
+    <line x1="0" y1="-140" x2="0" y2="180" stroke="#f4efdf" stroke-width="4" opacity="0.5"/>
+    <line x1="0" y1="-60" x2="60" y2="20" stroke="#f4efdf" stroke-width="3" opacity="0.4"/>
+    <line x1="0" y1="-60" x2="-60" y2="20" stroke="#f4efdf" stroke-width="3" opacity="0.4"/>
+    <line x1="0" y1="0" x2="50" y2="70" stroke="#f4efdf" stroke-width="3" opacity="0.4"/>
+    <line x1="0" y1="0" x2="-50" y2="70" stroke="#f4efdf" stroke-width="3" opacity="0.4"/>
+    <!-- Sun circle -->
+    <circle cx="70" cy="-100" r="32" fill="#c98b1a" opacity="0.85"/>
+    <circle cx="70" cy="-100" r="22" fill="#f4efdf" opacity="0.2"/>
+  </g>
+  <!-- E letter -->
+  <text x="256" y="420" text-anchor="middle" font-family="serif" font-weight="700" font-size="100" fill="#1c2b1e" opacity="0.15">EC</text>
+</svg>
