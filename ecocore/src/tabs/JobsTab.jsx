@@ -237,7 +237,7 @@ function AvailableJobsView() {
       </div>
 
       {/* Job cards list */}
-      <div className="flex-1 min-h-0 overflow-y-auto" style={{ scrollbarWidth: 'none', paddingBottom: 8 }}>
+      <div className="flex-1 min-h-0 overflow-y-auto" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: 96 }}>
         {AVAILABLE_JOBS.map(job => {
           const sev = severityColors[job.severity] || severityColors.Low;
           const isLaunching = runningId === job.id;

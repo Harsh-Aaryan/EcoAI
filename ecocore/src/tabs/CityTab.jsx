@@ -51,7 +51,7 @@ export default function CityTab() {
           : 'Mock';
 
   return (
-    <div className="tab-page frosted-page" style={{ position: 'relative' }}>
+    <div className="tab-page frosted-page" style={{ position: 'relative', overflow: 'hidden auto', paddingBottom: 80 }}>
       {/* Header + aggregate stats inline */}
       <div className="flex items-center justify-between mb-3 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
         <div>

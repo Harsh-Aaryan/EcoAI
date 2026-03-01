@@ -4,7 +4,7 @@ import { revenueData, revenueChart } from '../data/mock';
 
 export default function RevenueTab() {
   return (
-    <div className="tab-page frosted-page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="tab-page frosted-page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 6, overflow: 'hidden auto', paddingBottom: 80 }}>
       {/* Balance Hero — compact */}
       <div className="grain text-center py-4 flex-shrink-0"
         style={{
