@@ -6,7 +6,7 @@ import { useUnits } from '../hooks/useUnits';
 
 export default function SettingsTab() {
   const { user, logout } = useAuth0();
-  const { source, setZipcode, center } = useLocation();
+  const { source, setZipcode, center, loading: locLoading, error: locError } = useLocation();
   const { system: unitSystem, setSystem: setUnitSystem } = useUnits();
   const [battery, setBattery] = useState(userData.batteryCapacity);
   const [toggles, setToggles] = useState(settingsToggles.map(() => true));
@@ -77,18 +77,24 @@ export default function SettingsTab() {
         </div>
         <div className="flex gap-2">
           <input className="eco-input flex-1"
-            placeholder="Override: ZIP code (e.g. 78701)"
+            placeholder="Any US ZIP code (e.g. 90210)"
             value={zipInput}
             onChange={e => setZipInput(e.target.value.replace(/\D/g, '').slice(0, 5))}
             onKeyDown={e => e.key === 'Enter' && handleZipSubmit()}
             style={{ padding: '5px 10px', fontSize: 11 }}
           />
           <button className="eco-btn eco-btn-primary" onClick={handleZipSubmit}
-            style={{ padding: '5px 12px', fontSize: 11, borderRadius: 'var(--radius-input)' }}>
-            Set
+            disabled={locLoading}
+            style={{ padding: '5px 12px', fontSize: 11, borderRadius: 'var(--radius-input)', opacity: locLoading ? 0.6 : 1 }}>
+            {locLoading ? '…' : 'Set'}
           </button>
         </div>
-        {zipInput === '' && source === 'zipcode' && (
+        {locError && (
+          <div className="font-mono mt-1" style={{ fontSize: 10, color: '#c0392b' }}>
+            {locError}
+          </div>
+        )}
+        {source === 'zipcode' && (
           <button className="font-mono mt-1" style={{ fontSize: 10, color: 'var(--sky)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
             onClick={() => { setZipInput(''); setZipcode(null); }}>
             Clear override, use GPS
