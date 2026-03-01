@@ -220,8 +220,8 @@ export default function SettingsTab() {
         )}
       </div>
 
-      {/* Automation Rules — fills remaining */}
-      <div className="eco-card grain flex flex-col items-stretch" style={{ padding: '16px 12px' }}>
+      {/* Automation Rules */}
+      <div className="eco-card grain flex flex-col items-stretch flex-shrink-0" style={{ padding: '16px 12px' }}>
         <div className="font-display mb-1" style={{ fontSize: 15, color: 'var(--text)', letterSpacing: 0.2 }}>Automation Rules</div>
         <div className="flex flex-col" style={{gap: 10}}>
           {settingsToggles.map((label, i) => (
