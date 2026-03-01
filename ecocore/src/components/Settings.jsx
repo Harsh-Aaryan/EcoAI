@@ -4,8 +4,11 @@ import { userData, settingsToggles } from '../data/mock';
 import useLocation from '../hooks/useLocation';
 import { useUnits } from '../hooks/useUnits';
 
+const ADMIN_EMAILS = ['harsharyan4@gmail.com'];
+
 export default function SettingsTab() {
   const { user, logout } = useAuth0();
+  const isAdmin = ADMIN_EMAILS.includes(user?.email?.toLowerCase());
   const { source, setZipcode, center, loading: locLoading, error: locError } = useLocation();
   const { system: unitSystem, setSystem: setUnitSystem } = useUnits();
   const [battery, setBattery] = useState(() => {
@@ -17,6 +20,10 @@ export default function SettingsTab() {
   const [zipInput, setZipInput] = useState(localStorage.getItem('ecocore_user_zip') || '');
   const [computeMode, setComputeMode] = useState(localStorage.getItem('homenode_compute_mode') || 'cloud');
   const [sshKey, setSshKey] = useState(localStorage.getItem('homenode_ssh_key') || '');
+  const [timeOverride, setTimeOverride] = useState(() => {
+    const saved = localStorage.getItem('homenode_time_override');
+    return saved != null ? parseInt(saved, 10) : -1; // -1 = use real time
+  });
 
   const handleToggle = (i) => {
     const next = [...toggles];
@@ -219,6 +226,46 @@ export default function SettingsTab() {
           </div>
         )}
       </div>
+
+      {/* Time Override — Admin only */}
+      {isAdmin && (
+        <div className="eco-card grain flex-shrink-0" style={{ border: '1.5px solid rgba(201,139,26,0.3)' }}>
+          <div className="flex items-center gap-2 mb-2">
+            <span style={{ fontSize: 14 }}>🛡️</span>
+            <div className="font-display text-xs">Time Override</div>
+            <span className="eco-pill" style={{ background: 'rgba(201,139,26,0.12)', color: '#c98b1a', padding: '1px 6px', fontSize: 8, marginLeft: 'auto' }}>ADMIN</span>
+          </div>
+          <div className="font-mono mb-1" style={{ fontSize: 10, color: 'var(--muted)' }}>
+            Preview the sky & hue at any time of day. Set to "Auto" to use the real clock.
+          </div>
+          <div className="flex justify-between mb-0.5">
+            <span className="font-mono" style={{ fontSize: 11, color: 'var(--muted)' }}>Time</span>
+            <span className="font-mono" style={{ fontSize: 11, color: timeOverride === -1 ? 'var(--green)' : '#c98b1a', fontWeight: 600 }}>
+              {timeOverride === -1 ? 'Auto (real time)' : `${String(timeOverride).padStart(2, '0')}:00 — ${timeOverride >= 5 && timeOverride < 8 ? 'Dawn' : timeOverride >= 8 && timeOverride < 17 ? 'Day' : timeOverride >= 17 && timeOverride < 20 ? 'Evening' : 'Night'}`}
+            </span>
+          </div>
+          <input type="range" min="-1" max="23" step="1" value={timeOverride}
+            onChange={e => {
+              const v = parseInt(e.target.value, 10);
+              setTimeOverride(v);
+              if (v === -1) {
+                localStorage.removeItem('homenode_time_override');
+              } else {
+                localStorage.setItem('homenode_time_override', v);
+              }
+              // Dispatch storage event so HomeTab can pick it up immediately
+              window.dispatchEvent(new Event('homenode-time-change'));
+            }}
+          />
+          <div className="flex justify-between font-mono" style={{ fontSize: 8, color: 'var(--muted)', marginTop: 2 }}>
+            <span>Auto</span>
+            <span>Dawn</span>
+            <span>Day</span>
+            <span>Evening</span>
+            <span>Night</span>
+          </div>
+        </div>
+      )}
 
       {/* Automation Rules */}
       <div className="eco-card grain flex flex-col items-stretch flex-shrink-0" style={{ padding: '16px 12px' }}>

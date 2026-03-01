@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { ComposedChart, Line, Area, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 import BatteryGauge from '../components/BatteryGauge';
@@ -34,8 +34,26 @@ export default function HomeTab() {
     const clean = raw.replace(/[0-9_\.]/g, ' ').trim().split(/\s+/)[0];
     return clean ? clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase() : 'User';
   })();
-  const hour = new Date().getHours();
-  const minutes = new Date().getMinutes();
+  /* ── Time override (admin feature) ── */
+  const getOverrideHour = useCallback(() => {
+    const saved = localStorage.getItem('homenode_time_override');
+    return saved != null ? parseInt(saved, 10) : -1;
+  }, []);
+  const [overrideHour, setOverrideHour] = useState(getOverrideHour);
+  useEffect(() => {
+    const handler = () => setOverrideHour(getOverrideHour());
+    window.addEventListener('homenode-time-change', handler);
+    window.addEventListener('storage', handler);
+    return () => {
+      window.removeEventListener('homenode-time-change', handler);
+      window.removeEventListener('storage', handler);
+    };
+  }, [getOverrideHour]);
+
+  const realHour = new Date().getHours();
+  const realMinutes = new Date().getMinutes();
+  const hour = overrideHour >= 0 ? overrideHour : realHour;
+  const minutes = overrideHour >= 0 ? 0 : realMinutes;
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   const tod = getTimeOfDay(hour);
 
