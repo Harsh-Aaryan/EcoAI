@@ -79,6 +79,13 @@ export default function HomeTab() {
   const { convertTemp, convertSpeed, tempUnit, speedUnit } = useUnits();
   const homeStats = wt.homeStats || mockHomeStats;
 
+  // Battery preference from Settings
+  const batteryCapacity = parseFloat(localStorage.getItem('homenode_battery_capacity') ?? userData.batteryCapacity);
+  const hasBattery = batteryCapacity > 0;
+
+  // Grid load % — derive from clean energy (inverse) or carbon score
+  const gridLoadPct = Math.min(100, Math.max(0, 100 - (homeStats.cleanEnergyPct ?? 50)));
+
   // Latest job from shared context (running first, then most recent)
   const latestJob = jobs.find(j => j.status === 'running') || jobs[0] || null;
 
@@ -284,7 +291,12 @@ export default function HomeTab() {
           border: '1px solid rgba(255,255,255,0.2)',
         }}>
           <div style={{ transform: 'scale(0.78)', transformOrigin: 'center', margin: -6 }}>
-            <BatteryGauge level={userData.batteryLevel} isCharging={userData.isCharging} />
+            <BatteryGauge
+              level={userData.batteryLevel}
+              isCharging={userData.isCharging}
+              hasBattery={hasBattery}
+              gridUsage={gridLoadPct}
+            />
           </div>
         </div>
       </div>

@@ -38,6 +38,8 @@ export default function useWattTimeData(center) {
     },
   });
 
+  const centerKey = `${center?.[0]},${center?.[1]}`;
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -117,7 +119,7 @@ export default function useWattTimeData(center) {
     load();
 
     return () => controller.abort();
-  }, [center]);
+  }, [centerKey]);
 
   return useMemo(() => state, [state]);
 }
