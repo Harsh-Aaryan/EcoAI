@@ -39,11 +39,11 @@ export default function SettingsTab() {
   };
 
   return (
-    <div className="tab-page frosted-page" style={{ overflowY: 'auto', display: 'block' }}>
+    <div className="tab-page frosted-page" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
       <h2 className="font-display text-base font-light mb-2" style={{ position: 'relative', zIndex: 1 }}>Settings</h2>
 
       {/* Profile — from Auth0 */}
-      <div className="eco-card grain mb-2 flex-shrink-0">
+      <div className="eco-card grain flex-shrink-0">
         <div className="flex items-center gap-3">
           {user?.picture ? (
             <img src={user.picture} alt="" className="w-9 h-9 rounded-full" style={{ border: '2px solid var(--green)', objectFit: 'cover' }} />
@@ -65,7 +65,7 @@ export default function SettingsTab() {
       </div>
 
       {/* Location / Zipcode */}
-      <div className="eco-card grain mb-2 flex-shrink-0">
+      <div className="eco-card grain flex-shrink-0">
         <div className="font-display text-xs mb-1.5">Location</div>
         <div className="flex items-center gap-2 mb-1">
           <div className="eco-pill" style={{ background: 'rgba(46,139,150,0.1)', color: 'var(--sky)', padding: '2px 8px', fontSize: 9 }}>
@@ -97,7 +97,7 @@ export default function SettingsTab() {
       </div>
 
       {/* Home Configuration */}
-      <div className="eco-card grain mb-2 flex-shrink-0">
+      <div className="eco-card grain flex-shrink-0">
         <div className="font-display text-xs mb-2">Home Configuration</div>
 
         <div className="mb-2">
@@ -129,7 +129,7 @@ export default function SettingsTab() {
       </div>
 
       {/* Unit System */}
-      <div className="eco-card grain mb-2 flex-shrink-0">
+      <div className="eco-card grain flex-shrink-0">
         <div className="font-display text-xs mb-2">Unit System</div>
         <div className="flex gap-1.5">
           {[
@@ -156,7 +156,7 @@ export default function SettingsTab() {
       </div>
 
       {/* Compute Provider */}
-      <div className="eco-card grain mb-2 flex-shrink-0">
+      <div className="eco-card grain flex-shrink-0">
         <div className="font-display text-xs mb-2">AI Compute Provider</div>
         <div className="font-mono mb-2" style={{ fontSize: 10, color: 'var(--muted)' }}>
           Choose where AI jobs run. Cloud uses the default Groq API. Local connects to your machine via SSH.
@@ -212,15 +212,15 @@ export default function SettingsTab() {
       </div>
 
       {/* Automation Rules — fills remaining */}
-      <div className="eco-card grain flex flex-col items-stretch" style={{ marginTop: 16, padding: '16px 12px' }}>
-        <div className="font-display text-xs mb-1">Automation Rules</div>
+      <div className="eco-card grain flex flex-col items-stretch" style={{ padding: '16px 12px' }}>
+        <div className="font-display mb-1" style={{ fontSize: 15, color: 'var(--text)', letterSpacing: 0.2 }}>Automation Rules</div>
         <div className="flex flex-col" style={{gap: 10}}>
           {settingsToggles.map((label, i) => (
             <div key={i} className="flex flex-row items-center justify-between" style={{minHeight: 28}}>
-              <span style={{
-                fontSize: 13,
-                color: 'var(--text)',
-                lineHeight: 1.2,
+              <span className="font-mono" style={{
+                fontSize: 12,
+                color: 'rgba(56, 64, 50, 0.95)',
+                lineHeight: 1.3,
                 background: 'none',
                 borderRadius: '12px',
                 padding: 0,
@@ -229,7 +229,7 @@ export default function SettingsTab() {
                 boxShadow: 'none',
                 flex: 1
               }}>{label}</span>
-              <button className={`eco-toggle ${toggles[i] ? 'active' : ''}`} onClick={() => handleToggle(i)} style={{transform: 'scale(0.8)', minWidth: 22, minHeight: 16, alignSelf: 'flex-end'}} />
+              <button className={`eco-toggle ${toggles[i] ? 'active' : ''}`} onClick={() => handleToggle(i)} style={{transform: 'scale(0.8)', minWidth: 22, minHeight: 16, alignSelf: 'center'}} />
             </div>
           ))}
         </div>
