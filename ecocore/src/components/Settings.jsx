@@ -4,7 +4,7 @@ import { userData, settingsToggles } from '../data/mock';
 import useLocation from '../hooks/useLocation';
 import { useUnits } from '../hooks/useUnits';
 
-const ADMIN_EMAILS = ['harsharyan4@gmail.com'];
+const ADMIN_EMAILS = ['harsharyan4@gmail.com','jbirdlovescats@gmail.com','redpug666@gmail.com'];
 
 export default function SettingsTab() {
   const { user, logout } = useAuth0();
