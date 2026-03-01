@@ -53,7 +53,7 @@ export default function CityTab() {
   return (
     <div className="tab-page frosted-page" style={{ position: 'relative' }}>
       {/* Header + aggregate stats inline */}
-      <div className="flex items-center justify-between mb-2 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="flex items-center justify-between mb-3 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
         <div>
           <h2 className="font-display text-base font-light">{headerTitle}</h2>
           <span className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>
@@ -72,7 +72,7 @@ export default function CityTab() {
       </div>
 
       {/* Compact stats row */}
-      <div className="flex gap-2 mb-2 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="flex gap-2 mb-3 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
         {[
           { v: cityStats.homesOnline.toLocaleString(), l: 'Homes', c: 'var(--green)' },
           { v: `${cityStats.mwReduced} MW`, l: 'Reduced', c: 'var(--sky)' },
@@ -93,7 +93,7 @@ export default function CityTab() {
 
       {/* Weather row — live from Open-Meteo */}
       {weather.temperature != null && (
-        <div className="flex gap-2 mb-2 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
+        <div className="flex gap-2 mb-3 flex-shrink-0" style={{ position: 'relative', zIndex: 1 }}>
           {[
             { v: `${weather.weatherEmoji} ${weather.weatherLabel}`, l: 'Weather', c: 'var(--text)' },
             { v: `${convertTemp(weather.temperature)}${tempUnit}`, l: 'Temp', c: 'var(--sun)' },
@@ -115,7 +115,7 @@ export default function CityTab() {
       )}
 
       {/* Map — constrained height so demand card stays visible */}
-      <div className="flex-shrink-0 mb-3" style={{ height: 'clamp(200px, 46vh, 380px)', borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)', position: 'relative', zIndex: 1 }}>
+      <div className="flex-shrink-0" style={{ marginTop: 10, marginBottom: 16, height: 'clamp(200px, 46vh, 380px)', borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)', position: 'relative', zIndex: 1 }}>
         <MapContainer center={center} zoom={14} style={{ height: '100%', width: '100%' }} zoomControl={false} attributionControl={false}>
           <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
           <FlyTo center={center} />
