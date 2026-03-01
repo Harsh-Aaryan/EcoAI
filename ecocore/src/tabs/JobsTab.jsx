@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import CircularProgress from '../components/CircularProgress';
-import { LeafIcon, PlusIcon, CheckIcon, WarnLeafIcon } from '../components/Icons';
-import { tasksList as initialTasks } from '../data/mock';
+import { LeafIcon, PlusIcon } from '../components/Icons';
 import useLocation from '../hooks/useLocation';
 import useWattTimeData from '../hooks/useWattTimeData';
 import useJobs from '../hooks/useJobs';
@@ -15,7 +13,26 @@ const SAMPLE_JOBS = [
   { id: 'analyze', name: 'Energy Data Analyst', type: 'Inference', icon: '📊', desc: 'Analyze 24h energy patterns' },
 ];
 
-/* ── AI Jobs ── */
+/* ── Available job marketplace listings ── */
+const AVAILABLE_JOBS = [
+  { id: 'av-1', name: 'Peak Shaving Analysis', icon: '📉', category: 'Grid Ops', severity: 'High', pay: 0.85, estTime: '~3 min', desc: 'Analyze local grid peaks and recommend optimal battery discharge windows to flatten demand curves.', tags: ['grid', 'battery', 'optimization'] },
+  { id: 'av-2', name: 'Solar Forecast Model', icon: '☀️', category: 'Prediction', severity: 'Medium', pay: 0.42, estTime: '~2 min', desc: 'Train a micro-forecast for next-day solar irradiance using local weather patterns.', tags: ['solar', 'ML', 'forecast'] },
+  { id: 'av-3', name: 'EV Charge Scheduler', icon: '🔋', category: 'Scheduling', severity: 'Low', pay: 0.28, estTime: '~1 min', desc: 'Generate an optimal overnight EV charging schedule based on real-time carbon intensity.', tags: ['EV', 'scheduling', 'carbon'] },
+  { id: 'av-4', name: 'Demand Response Report', icon: '📋', category: 'Reporting', severity: 'High', pay: 1.20, estTime: '~5 min', desc: 'Compile a detailed demand response event report for utility submission and credit claiming.', tags: ['DR', 'utility', 'compliance'] },
+  { id: 'av-5', name: 'Anomaly Detection Scan', icon: '🔍', category: 'Monitoring', severity: 'Critical', pay: 1.75, estTime: '~4 min', desc: 'Scan 48h of meter data for anomalies — theft detection, meter drift, or inverter faults.', tags: ['security', 'anomaly', 'monitoring'] },
+  { id: 'av-6', name: 'Carbon Credit Calc', icon: '🌱', category: 'Finance', severity: 'Medium', pay: 0.55, estTime: '~2 min', desc: 'Calculate verified carbon credits earned from your clean energy exports this billing cycle.', tags: ['carbon', 'credits', 'finance'] },
+  { id: 'av-7', name: 'Microgrid Balancer', icon: '⚖️', category: 'Grid Ops', severity: 'High', pay: 0.95, estTime: '~3 min', desc: 'Balance load across neighborhood microgrid nodes for optimal power distribution.', tags: ['microgrid', 'balancing', 'P2P'] },
+  { id: 'av-8', name: 'Tariff Optimizer', icon: '💰', category: 'Finance', severity: 'Low', pay: 0.35, estTime: '~1 min', desc: 'Compare available utility tariff plans and recommend the best fit for your usage pattern.', tags: ['tariff', 'savings', 'finance'] },
+];
+
+const severityColors = {
+  Critical: { bg: 'rgba(180,50,50,0.1)', text: '#c0392b' },
+  High: { bg: 'rgba(201,139,26,0.1)', text: '#c98b1a' },
+  Medium: { bg: 'rgba(46,139,150,0.1)', text: 'var(--sky)' },
+  Low: { bg: 'rgba(46,125,62,0.1)', text: 'var(--green)' },
+};
+
+/* ── AI Jobs (My Jobs) ── */
 function AIJobsView() {
   const { center } = useLocation();
   const wt = useWattTimeData(center);
@@ -92,7 +109,6 @@ function AIJobsView() {
                 <div className="eco-progress-fill" style={{ width: `${job.progress}%`, background: 'linear-gradient(90deg, var(--green), var(--green-soft))' }} />
               </div>
             )}
-            {/* Expanded result */}
             {expandedJob === job.id && job.result && (
               <div className="mt-2 anim-fadein" style={{
                 background: 'rgba(46,125,62,0.06)',
@@ -170,66 +186,137 @@ function AIJobsView() {
   );
 }
 
-/* ── Tasks ── */
-function TasksView() {
-  const [tasks, setTasks] = useState(initialTasks);
-  const [newTask, setNewTask] = useState('');
-  const completed = tasks.filter(t => t.done).length;
-  const pct = Math.round((completed / tasks.length) * 100);
-  const hasUrgent = tasks.some(t => t.urgent && !t.done);
+/* ── Available Jobs ── */
+function AvailableJobsView() {
+  const { center } = useLocation();
+  const wt = useWattTimeData(center);
+  const { runJob } = useJobs();
+  const [runningId, setRunningId] = useState(null);
 
-  const toggleTask = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
-  const addTask = () => {
-    if (!newTask.trim()) return;
-    setTasks([...tasks, { id: Date.now(), name: newTask, category: 'General', due: 'Today', done: false, urgent: false }]);
-    setNewTask('');
+  const handleRun = (avJob) => {
+    if (runningId) return;
+    setRunningId(avJob.id);
+    // Map available job to a sample-compatible shape for runJob
+    const sample = {
+      id: avJob.id,
+      name: avJob.name,
+      type: avJob.category,
+      icon: avJob.icon,
+      desc: avJob.desc,
+    };
+    runJob(sample, {
+      gridPrice: wt.homeStats?.gridPrice ?? null,
+      carbonScore: wt.homeStats?.carbonScore ?? null,
+      cleanEnergyPct: wt.homeStats?.cleanEnergyPct ?? null,
+    });
+    setTimeout(() => setRunningId(null), 1500);
   };
+
+  const totalEarnings = AVAILABLE_JOBS.reduce((sum, j) => sum + j.pay, 0);
 
   return (
     <div className="anim-fadein flex flex-col flex-1 min-h-0">
-      {/* Progress + urgent */}
-      <div className="flex items-center gap-3 mb-2 flex-shrink-0">
-        <CircularProgress pct={pct} size={70} />
-        <div className="flex-1">
-          <div className="font-display text-sm mb-1">Today's Progress</div>
-          <div className="font-mono text-xs" style={{ color: 'var(--muted)' }}>{completed} of {tasks.length} complete</div>
-          {hasUrgent && (
-            <div className="eco-pill mt-1" style={{ background: 'rgba(201,139,26,0.1)', color: 'var(--sun)' }}>
-              <WarnLeafIcon size={12} />
-              <span className="font-mono" style={{ fontSize: 10 }}>Urgent tasks pending</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Task list */}
-      <div className="flex-1 min-h-0 overflow-y-auto mb-2" style={{ scrollbarWidth: 'none' }}>
-        {tasks.map(task => (
-          <div key={task.id} className={`flex items-center gap-2.5 py-2 px-1.5 border-b cursor-pointer ${task.done ? 'task-done' : ''}`}
-            style={{ borderColor: 'var(--border)' }} onClick={() => toggleTask(task.id)}>
-            <div className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0"
-              style={{ border: `1.5px solid ${task.done ? 'var(--green)' : 'var(--border)'}`, background: task.done ? 'var(--green)' : 'transparent' }}>
-              {task.done && <CheckIcon size={10} color="white" />}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-mono text-xs truncate">{task.name}</div>
-              <div className="flex gap-1.5 items-center">
-                <span className="font-mono px-1.5 py-0.5 rounded" style={{ fontSize: 9, background: 'rgba(46,125,62,0.08)', color: 'var(--green)' }}>{task.category}</span>
-                <span className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>{task.due}</span>
-                {task.urgent && !task.done && <span className="font-mono" style={{ fontSize: 9, color: 'var(--sun)' }}>!</span>}
-              </div>
-            </div>
+      {/* Summary bar */}
+      <div className="flex gap-2 mb-2 flex-shrink-0">
+        {[
+          { l: 'Available', v: AVAILABLE_JOBS.length, c: 'var(--green)' },
+          { l: 'Potential', v: `$${totalEarnings.toFixed(2)}`, c: 'var(--sun)' },
+          { l: 'Categories', v: [...new Set(AVAILABLE_JOBS.map(j => j.category))].length, c: 'var(--sky)' },
+        ].map((s, i) => (
+          <div key={i} className="flex-1 text-center py-1.5" style={{
+            background: 'rgba(205,196,178,0.65)',
+            backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: 'var(--radius-card)',
+            boxShadow: 'var(--shadow-card)',
+          }}>
+            <div className="font-mono text-sm" style={{ color: s.c, fontWeight: 600 }}>{s.v}</div>
+            <div className="font-mono" style={{ fontSize: 8, color: 'var(--muted)' }}>{s.l}</div>
           </div>
         ))}
       </div>
 
-      {/* Add task */}
-      <div className="flex gap-2 flex-shrink-0">
-        <input className="eco-input flex-1" placeholder="Add a task..." value={newTask}
-          onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} style={{ padding: '7px 10px', fontSize: 12 }} />
-        <button className="eco-btn eco-btn-primary flex items-center justify-center" onClick={addTask} style={{ padding: '7px 12px' }}>
-          <PlusIcon size={16} color="white" />
-        </button>
+      {/* Job cards list */}
+      <div className="flex-1 min-h-0 overflow-y-auto" style={{ scrollbarWidth: 'none', paddingBottom: 8 }}>
+        {AVAILABLE_JOBS.map(job => {
+          const sev = severityColors[job.severity] || severityColors.Low;
+          const isLaunching = runningId === job.id;
+          return (
+            <div key={job.id} className="eco-card grain" style={{ padding: '10px 12px', marginBottom: 8, transition: 'transform 150ms', transform: isLaunching ? 'scale(0.98)' : 'scale(1)' }}>
+              {/* Top row: icon + name + pay */}
+              <div className="flex items-start gap-2.5 mb-1.5">
+                <div style={{
+                  width: 34, height: 34, borderRadius: 10,
+                  background: 'rgba(46,125,62,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 18, flexShrink: 0,
+                }}>
+                  {job.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display" style={{ fontSize: 12, lineHeight: 1.3 }}>{job.name}</div>
+                  <div className="font-mono" style={{ fontSize: 9, color: 'var(--muted)', lineHeight: 1.4 }}>{job.desc}</div>
+                </div>
+                <div className="text-right flex-shrink-0" style={{ marginLeft: 4 }}>
+                  <div className="font-mono" style={{ fontSize: 14, fontWeight: 700, color: 'var(--green)', lineHeight: 1 }}>${job.pay.toFixed(2)}</div>
+                  <div className="font-mono" style={{ fontSize: 8, color: 'var(--muted)' }}>reward</div>
+                </div>
+              </div>
+
+              {/* Meta row: severity, category, time, tags */}
+              <div className="flex items-center gap-1.5 mb-2" style={{ flexWrap: 'wrap' }}>
+                <span className="font-mono" style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 6,
+                  background: sev.bg, color: sev.text, fontWeight: 600,
+                }}>{job.severity}</span>
+                <span className="font-mono" style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 6,
+                  background: 'rgba(46,139,150,0.08)', color: 'var(--sky)',
+                }}>{job.category}</span>
+                <span className="font-mono" style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 6,
+                  background: 'rgba(140,130,115,0.08)', color: 'var(--muted)',
+                }}>⏱ {job.estTime}</span>
+                {job.tags.map(t => (
+                  <span key={t} className="font-mono" style={{
+                    fontSize: 8, padding: '1px 5px', borderRadius: 4,
+                    background: 'rgba(46,125,62,0.05)', color: 'var(--muted)',
+                  }}>#{t}</span>
+                ))}
+              </div>
+
+              {/* Run button */}
+              <button
+                onClick={() => handleRun(job)}
+                disabled={!!runningId}
+                style={{
+                  width: '100%', padding: '7px 0',
+                  borderRadius: 10, border: 'none', cursor: isLaunching ? 'default' : 'pointer',
+                  background: isLaunching
+                    ? 'rgba(46,125,62,0.15)'
+                    : 'linear-gradient(135deg, var(--green), #3a7d44)',
+                  color: isLaunching ? 'var(--green)' : 'white',
+                  fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 500,
+                  transition: 'all 150ms',
+                  boxShadow: isLaunching ? 'none' : '0 2px 8px rgba(46,125,62,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}
+              >
+                {isLaunching ? (
+                  <>
+                    <span className="inline-block w-3 h-3 border-2 rounded-full" style={{ borderColor: 'var(--green)', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
+                    Launching…
+                  </>
+                ) : (
+                  <>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                    Run Job
+                  </>
+                )}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -243,17 +330,17 @@ export default function JobsTab() {
     <div className="tab-page frosted-page" style={{ position: 'relative' }}>
       {/* Sub-tab switcher */}
       <div className="flex gap-0 mb-2 p-0.5 rounded-full flex-shrink-0" style={{ background: 'rgba(195,186,168,0.6)', border: '1px solid rgba(180,170,148,0.4)', position: 'relative', zIndex: 1, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
-        {['jobs', 'tasks'].map(t => (
+        {['jobs', 'available'].map(t => (
           <button key={t} className="flex-1 py-1.5 rounded-full font-mono text-xs transition-all"
             style={{ background: subTab === t ? 'var(--green)' : 'transparent', color: subTab === t ? 'white' : 'var(--muted)', border: 'none', cursor: 'pointer',
               boxShadow: subTab === t ? '0 1px 4px rgba(46,125,62,0.25)' : 'none' }}
             onClick={() => setSubTab(t)}>
-            {t === 'jobs' ? 'AI Jobs' : 'Tasks'}
+            {t === 'jobs' ? 'My Jobs' : 'Available Jobs'}
           </button>
         ))}
       </div>
 
-      {subTab === 'jobs' ? <AIJobsView /> : <TasksView />}
+      {subTab === 'jobs' ? <AIJobsView /> : <AvailableJobsView />}
     </div>
   );
 }
