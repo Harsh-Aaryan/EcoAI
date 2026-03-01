@@ -155,7 +155,7 @@ export default function useWeather(center) {
 
     load();
     return () => { cancelled = true; };
-  }, [center]);
+  }, [center?.[0], center?.[1]]);
 
   return useMemo(() => state, [state]);
 }

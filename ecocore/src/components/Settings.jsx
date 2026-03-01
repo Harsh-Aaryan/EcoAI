@@ -8,7 +8,10 @@ export default function SettingsTab() {
   const { user, logout } = useAuth0();
   const { source, setZipcode, center, loading: locLoading, error: locError } = useLocation();
   const { system: unitSystem, setSystem: setUnitSystem } = useUnits();
-  const [battery, setBattery] = useState(userData.batteryCapacity);
+  const [battery, setBattery] = useState(() => {
+    const saved = localStorage.getItem('homenode_battery_capacity');
+    return saved != null ? parseFloat(saved) : userData.batteryCapacity;
+  });
   const [toggles, setToggles] = useState(settingsToggles.map(() => true));
   const [region, setRegion] = useState(userData.gridRegion);
   const [zipInput, setZipInput] = useState(localStorage.getItem('ecocore_user_zip') || '');
@@ -39,7 +42,7 @@ export default function SettingsTab() {
   };
 
   return (
-    <div className="tab-page frosted-page" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="tab-page frosted-page" style={{ overflow: 'hidden auto', display: 'flex', flexDirection: 'column', gap: 6, paddingBottom: 80 }}>
       <h2 className="font-display text-base font-light mb-2" style={{ position: 'relative', zIndex: 1 }}>Settings</h2>
 
       {/* Profile — from Auth0 */}
@@ -109,9 +112,9 @@ export default function SettingsTab() {
         <div className="mb-2">
           <div className="flex justify-between mb-0.5">
             <span className="font-mono" style={{ fontSize: 11, color: 'var(--muted)' }}>Battery Capacity</span>
-            <span className="font-mono" style={{ fontSize: 11, color: 'var(--green)' }}>{battery} kWh</span>
+            <span className="font-mono" style={{ fontSize: 11, color: battery === 0 ? 'var(--muted)' : 'var(--green)' }}>{battery === 0 ? 'No Battery' : `${battery} kWh`}</span>
           </div>
-          <input type="range" min="5" max="40" step="0.5" value={battery} onChange={e => setBattery(parseFloat(e.target.value))} />
+          <input type="range" min="0" max="40" step="0.5" value={battery} onChange={e => { const v = parseFloat(e.target.value); setBattery(v); localStorage.setItem('homenode_battery_capacity', v); }} />
         </div>
 
         <div className="flex justify-between items-center mb-2">
@@ -217,8 +220,8 @@ export default function SettingsTab() {
         )}
       </div>
 
-      {/* Automation Rules — fills remaining */}
-      <div className="eco-card grain flex flex-col items-stretch" style={{ padding: '16px 12px' }}>
+      {/* Automation Rules */}
+      <div className="eco-card grain flex flex-col items-stretch flex-shrink-0" style={{ padding: '16px 12px' }}>
         <div className="font-display mb-1" style={{ fontSize: 15, color: 'var(--text)', letterSpacing: 0.2 }}>Automation Rules</div>
         <div className="flex flex-col" style={{gap: 10}}>
           {settingsToggles.map((label, i) => (

@@ -70,8 +70,8 @@ export const demandEvents = [
 
 export const impactStats = {
   co2Avoided: '42 kg',
-  peakerReplaced: '8.3 hrs',
-  carFreeDays: '4 days',
+  gridSavings: '$18.40',
+  cleanHours: '186 hrs',
   kwhOptimized: '312 kWh',
 };
 

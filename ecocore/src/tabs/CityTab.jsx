@@ -252,8 +252,8 @@ export default function CityTab() {
           <div className="grid grid-cols-4 gap-1.5">
             {[
               { v: impactStats.co2Avoided, l: 'CO₂' },
-              { v: impactStats.peakerReplaced, l: 'Peaker' },
-              { v: impactStats.carFreeDays, l: 'Car-free' },
+              { v: impactStats.gridSavings, l: 'Savings' },
+              { v: impactStats.cleanHours, l: 'Clean Hrs' },
               { v: impactStats.kwhOptimized, l: 'kWh' },
             ].map((s, i) => (
               <div key={i} className="text-center">

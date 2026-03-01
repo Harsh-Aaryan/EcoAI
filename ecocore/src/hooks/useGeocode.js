@@ -102,7 +102,7 @@ export default function useGeocode(center) {
 
     load();
     return () => { cancelled = true; };
-  }, [center]);
+  }, [center?.[0], center?.[1]]);
 
   return useMemo(() => state, [state]);
 }
