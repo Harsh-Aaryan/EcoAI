@@ -42,7 +42,7 @@ export default function SettingsTab() {
   };
 
   return (
-    <div className="tab-page frosted-page" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="tab-page frosted-page" style={{ overflow: 'hidden auto', display: 'flex', flexDirection: 'column', gap: 6, paddingBottom: 80 }}>
       <h2 className="font-display text-base font-light mb-2" style={{ position: 'relative', zIndex: 1 }}>Settings</h2>
 
       {/* Profile — from Auth0 */}
