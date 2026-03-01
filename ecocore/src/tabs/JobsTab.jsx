@@ -81,9 +81,9 @@ function AIJobsView() {
       )}
 
       {/* Job list — scrollable area */}
-      <div className="flex-1 min-h-0 overflow-y-auto" style={{ scrollbarWidth: 'none', paddingBottom: 70 }}>
+      <div className="flex-1 min-h-0 overflow-y-auto" style={{ scrollbarWidth: 'none', paddingBottom: 70, marginTop: plannerNote ? 0 : 6 }}>
         {jobs.length === 0 && (
-          <div className="eco-card grain text-center py-6">
+          <div className="eco-card grain text-center flex flex-col items-center justify-center" style={{ minHeight: 'clamp(220px, 48vh, 420px)' }}>
             <div className="font-display text-sm mb-1" style={{ color: 'var(--muted)' }}>No jobs yet</div>
             <div className="font-mono" style={{ fontSize: 10, color: 'var(--muted)' }}>Tap + to run a sample AI job via Groq</div>
           </div>
