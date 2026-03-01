@@ -21,7 +21,7 @@ export default function BatteryGauge({ level = 78, isCharging = true }) {
           {level}%
         </text>
         <text x={center} y={center + 17} textAnchor="middle" fill="var(--muted)"
-          fontFamily="var(--font-display)" fontSize="9" letterSpacing="1.5">
+          fontFamily="var(--font-mono)" fontSize="10" letterSpacing="1.5">
           BATTERY
         </text>
       </svg>
