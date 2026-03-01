@@ -115,7 +115,7 @@ export default function CityTab() {
       )}
 
       {/* Map — constrained height so demand card stays visible */}
-      <div className="flex-shrink-0 mb-2" style={{ height: 'clamp(200px, 46vh, 380px)', borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)', position: 'relative', zIndex: 1 }}>
+      <div className="flex-shrink-0 mb-3" style={{ height: 'clamp(200px, 46vh, 380px)', borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)', position: 'relative', zIndex: 1 }}>
         <MapContainer center={center} zoom={14} style={{ height: '100%', width: '100%' }} zoomControl={false} attributionControl={false}>
           <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
           <FlyTo center={center} />
@@ -211,8 +211,8 @@ export default function CityTab() {
       </div>
 
       {/* DR Events + Impact — frosted glass */}
-      <div className="flex-1 overflow-hidden" style={{
-        padding: '10px 12px', position: 'relative', zIndex: 1,
+      <div className="flex-shrink-0" style={{
+        padding: '12px 14px', position: 'relative', zIndex: 1,
         background: 'rgba(205,196,178,0.65)',
         backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
         border: '1px solid rgba(255,255,255,0.3)',
@@ -220,25 +220,25 @@ export default function CityTab() {
         boxShadow: 'var(--shadow-card)',
       }}>
         {/* Demand response */}
-        <div className="mb-1">
+        <div className="mb-1.5">
           <div className="flex items-center justify-between mb-1">
-            <span className="font-display text-xs">Demand Response</span>
+            <span className="font-display" style={{ fontSize: 14 }}>Demand Response</span>
             {wt.demand?.demand && (
-              <span className="font-mono" style={{ fontSize: 9, color: 'var(--sky)' }}>
+              <span className="font-mono" style={{ fontSize: 11, color: 'var(--sky)' }}>
                 {Math.round(wt.demand.demand / 1000).toLocaleString()} GW load
               </span>
             )}
           </div>
           {demandEvents.map((ev, i) => (
-            <div key={i} className="flex justify-between items-center py-1 px-1.5 rounded-lg mb-0.5"
+            <div key={i} className="flex justify-between items-center py-1.5 px-2 rounded-lg mb-1"
               style={{ background: ev.status === 'Upcoming' ? 'rgba(201,139,26,0.08)' : 'transparent' }}>
               <div className="flex items-center gap-2">
-                <span className="font-mono" style={{ fontSize: 10 }}>{ev.time}</span>
+                <span className="font-mono" style={{ fontSize: 12 }}>{ev.time}</span>
                 {ev.status === 'Upcoming' && (
-                  <span className="eco-pill" style={{ background: 'rgba(201,139,26,0.15)', color: 'var(--sun)', padding: '1px 6px', fontSize: 9 }}>Soon</span>
+                  <span className="eco-pill" style={{ background: 'rgba(201,139,26,0.15)', color: 'var(--sun)', padding: '1px 6px', fontSize: 10 }}>Soon</span>
                 )}
               </div>
-              <span className="font-mono" style={{ fontSize: 10, color: ev.status === 'Upcoming' ? 'var(--sun)' : 'var(--muted)' }}>{ev.bonus}</span>
+              <span className="font-mono" style={{ fontSize: 12, color: ev.status === 'Upcoming' ? 'var(--sun)' : 'var(--muted)' }}>{ev.bonus}</span>
             </div>
           ))}
         </div>
@@ -247,9 +247,9 @@ export default function CityTab() {
         <div className="w-full flex-shrink-0" style={{ height: 1, background: 'var(--border)' }} />
 
         {/* Impact grid */}
-        <div className="pt-1">
-          <div className="font-display text-xs mb-0.5">Your Impact</div>
-          <div className="grid grid-cols-4 gap-1">
+        <div className="pt-1.5">
+          <div className="font-display" style={{ fontSize: 13, marginBottom: 4 }}>Your Impact</div>
+          <div className="grid grid-cols-4 gap-1.5">
             {[
               { v: impactStats.co2Avoided, l: 'CO₂' },
               { v: impactStats.peakerReplaced, l: 'Peaker' },
@@ -257,8 +257,8 @@ export default function CityTab() {
               { v: impactStats.kwhOptimized, l: 'kWh' },
             ].map((s, i) => (
               <div key={i} className="text-center">
-                <div className="font-display text-xs" style={{ color: 'var(--green)' }}>{s.v}</div>
-                <div className="font-mono" style={{ fontSize: 8, color: 'var(--muted)' }}>{s.l}</div>
+                <div className="font-display" style={{ fontSize: 13, color: 'var(--green)' }}>{s.v}</div>
+                <div className="font-mono" style={{ fontSize: 9, color: 'var(--muted)' }}>{s.l}</div>
               </div>
             ))}
           </div>
